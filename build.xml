@@ -1,0 +1,71 @@
+<project name="ece454750s15a1" default="tutorial" basedir=".">
+
+  <description>ECE454 A1</description>
+
+  <property name="src" location="src" />
+  <property name="gen" location="gen-java" />
+  <property name="build" location="build" />
+
+  <path id="libs.classpath">
+    <fileset dir="./build/lib">
+      <include name="*.jar" />
+    </fileset>
+    <!-- TODO: unify location for jar files during link -->
+    <fileset dir="./jars">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+  <path id="build.classpath">
+    <path refid="libs.classpath" />
+    <pathelement path="${gen}" />
+  </path>
+
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/log"/>
+    <mkdir dir="${build}/lib"/>
+  </target>
+
+  <target name="compile" depends="init, generate">
+    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="libs.classpath" />
+    <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
+  </target>
+
+  <!-- target name="tutorial" description="Run the tutorial" -->
+  <target name="main" description="execute the program" depends="compile" >
+    <jar jarfile="main.jar" basedir="${build}"/>
+    <parallel>
+      <java classname="JavaServer" fork="true" timeout="10000"
+        classpathref="main.classpath" failonerror="false" output="${build}/log/main.log">
+      </java>
+      <sequential>
+        <sleep seconds="2"/>
+        <echo>main client simple:</echo>
+        <java classname="JavaClient"
+          classpathref="main.classpath" failonerror="true">
+          <arg line="simple"/>
+        </java>
+      </sequential>
+    </parallel>
+  </target>
+
+  <target name="generate">
+    <!-- Generate the thrift gen-java source -->
+    <!-- exec executable="../../compiler/cpp/thrift" failonerror="true" -->
+    <exec executable="/usr/local/Cellar/thrift/0.9.1/bin/thrift" failonerror="true" >
+      <arg line="--gen java -r A1Management.thrift"/>
+    </exec>
+    <exec executable="/usr/local/Cellar/thrift/0.9.1/bin/thrift" failonerror="true" >
+      <arg line="--gen java -r A1Password.thrift"/>
+    </exec>
+
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}" />
+    <delete dir="${gen}"/>
+    <delete file="tutorial.jar" />
+  </target>
+
+</project>
