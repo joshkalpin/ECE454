@@ -8,8 +8,17 @@ import org.apache.thrift.protocol.TProtocol;
 
 import ece454750s15a1.*;
 
-public class FEServer {
+public class FEServer extends Server {
     public static void main(String[] args) {
-        Server server = new Server(args);
+        Server server = new FEServer(args);
+        server.start();
+    }
+
+    public FEServer(String[] args) {
+        super(args);
+    }
+
+    public void start() {
+
     }
 }

@@ -1,4 +1,4 @@
-public class Server {
+public abstract class Server {
     /**
     *   host: name of host on which this process will run
     *   pport:port number for password service
@@ -60,4 +60,6 @@ public class Server {
     public String[] getSeeds() {
         return seeds;
     }
+
+    public abstract void start();
 }
