@@ -1,4 +1,5 @@
 import org.apache.thrift.TException;
+import org.apache.thrift.async.AsyncMethodCallback;
 import java.util.*;
 
 // generated thrift code
