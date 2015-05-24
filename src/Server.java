@@ -7,8 +7,6 @@ public class Server {
     *   seeds: comma-separated list of host:portpairs corresponding to FE seed nodes
     **/
 
-    public static final int SAFE_PORT_NUM = 18726;
-
     private String host;
     private int pport;
     private int mport;

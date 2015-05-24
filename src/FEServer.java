@@ -6,6 +6,8 @@ import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 
+import ece454750s15a1.*;
+
 public class FEServer {
     public static void main(String[] args) {
         Server server = new Server(args);
