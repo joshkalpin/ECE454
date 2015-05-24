@@ -9,12 +9,14 @@ public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
 
     public A1ManagementHandlerAsync() {}
 
-    public void getPerfCounters(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void getPerfCounters(AsyncMethodCallback resultHandler) throws TException {
 
     }
 
-    public void getGroupMembers(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
-
+    public void getGroupMembers(AsyncMethodCallback resultHandler) throws TException {
+        List<String> members = new ArrayList<String>();
+        members.add("jzanutto");
+        members.add("jkalpin");
     }
 
 

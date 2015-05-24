@@ -14,7 +14,10 @@ public class A1ManagementHandler implements A1Management.Iface {
     }
 
     public List<String> getGroupMembers() throws org.apache.thrift.TException {
-        return new ArrayList<String>();
+        List<String> members = new ArrayList<String>();
+        members.add("jzanutto");
+        members.add("jkalpin");
+        return members;
     }
 
 
