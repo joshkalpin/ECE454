@@ -76,10 +76,10 @@
   <target name="generate">
     <!-- Generate the thrift gen-java source -->
     <!-- exec executable="../../compiler/cpp/thrift" failonerror="true" -->
-    <exec executable="/usr/local/Cellar/thrift/0.9.1/bin/thrift" failonerror="true" >
+    <exec executable="thrift" failonerror="true" >
       <arg line="--gen java -r A1Management.thrift"/>
     </exec>
-    <exec executable="/usr/local/Cellar/thrift/0.9.1/bin/thrift" failonerror="true" >
+    <exec executable="thrift" failonerror="true" >
       <arg line="--gen java -r A1Password.thrift"/>
     </exec>
 

@@ -61,5 +61,5 @@ public abstract class Server {
         return seeds;
     }
 
-    public abstract void start();
+    protected abstract void start();
 }

@@ -18,7 +18,7 @@ public class BEServer extends Server {
         super(args);
     }
 
-    public void start() {
+    protected void start() {
 
     }
 }
