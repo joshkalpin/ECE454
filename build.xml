@@ -43,14 +43,15 @@
     <parallel>
       <java classname="BEServer" fork="true" timeout="10000"
         classpathref="main.classpath" failonerror="false" output="${build}/log/BEServer.log">
+        <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
       </java>
       <sequential>
         <sleep seconds="2"/>
-        <echo>front end client simple:</echo>
+        <echo>frontend client:</echo>
         <java classname="FEServer"
           classpathref="main.classpath" failonerror="true">
-          <arg line="simple"/>
-        </java>
+          <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+      </java>
       </sequential>
     </parallel>
   </target>
@@ -60,15 +61,15 @@
     <echo>backend client simple:</echo>
     <java classname="BEServer"
       classpathref="main.classpath" failonerror="true">
-      <!-- <arg line="simple eceubuntu"/> -->
+      <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
     </java>
   </target>
 
   <target name="frontendserver" description="Run a backend server" depends="compile" >
-    <echo>front end client simple:</echo>
+    <echo>frontend client simple:</echo>
     <java classname="FEServer"
       classpathref="main.classpath" failonerror="true">
-      <!-- <arg line="simple eceubuntu"/> -->
+      <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
     </java>
   </target>
 

@@ -8,6 +8,6 @@ import org.apache.thrift.protocol.TProtocol;
 
 public class FEServer {
     public static void main(String[] args) {
-
+        Server server = new Server(args);
     }
 }
