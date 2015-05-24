@@ -1,4 +1,4 @@
-<project name="ece454750s15a1" default="tutorial" basedir=".">
+<project name="ece454750s15a1" default="main" basedir=".">
 
   <description>ECE454 A1</description>
 
@@ -7,7 +7,7 @@
   <property name="build" location="build" />
 
   <path id="libs.classpath">
-    <fileset dir="./build/lib">
+    <fileset dir="./jars">
       <include name="*.jar" />
     </fileset>
     <!-- TODO: unify location for jar files during link -->
@@ -18,6 +18,12 @@
   <path id="build.classpath">
     <path refid="libs.classpath" />
     <pathelement path="${gen}" />
+  </path>
+
+    <path id="main.classpath">
+    <path refid="build.classpath" />
+    <pathelement path="${build}" />
+    <pathelement path="main.jar" />
   </path>
 
   <target name="init">
@@ -32,22 +38,38 @@
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
-  <!-- target name="tutorial" description="Run the tutorial" -->
   <target name="main" description="execute the program" depends="compile" >
     <jar jarfile="main.jar" basedir="${build}"/>
     <parallel>
-      <java classname="JavaServer" fork="true" timeout="10000"
-        classpathref="main.classpath" failonerror="false" output="${build}/log/main.log">
+      <java classname="BEServer" fork="true" timeout="10000"
+        classpathref="main.classpath" failonerror="false" output="${build}/log/BEServer.log">
       </java>
       <sequential>
         <sleep seconds="2"/>
-        <echo>main client simple:</echo>
-        <java classname="JavaClient"
+        <echo>front end client simple:</echo>
+        <java classname="FEServer"
           classpathref="main.classpath" failonerror="true">
           <arg line="simple"/>
         </java>
       </sequential>
     </parallel>
+  </target>
+
+
+  <target name="backendserver" description="Run a backend server" depends="compile" >
+    <echo>backend client simple:</echo>
+    <java classname="BEServer"
+      classpathref="main.classpath" failonerror="true">
+      <!-- <arg line="simple eceubuntu"/> -->
+    </java>
+  </target>
+
+  <target name="frontendserver" description="Run a backend server" depends="compile" >
+    <echo>front end client simple:</echo>
+    <java classname="FEServer"
+      classpathref="main.classpath" failonerror="true">
+      <!-- <arg line="simple eceubuntu"/> -->
+    </java>
   </target>
 
   <target name="generate">
@@ -65,7 +87,7 @@
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${gen}"/>
-    <delete file="tutorial.jar" />
+    <delete file="main.jar" />
   </target>
 
 </project>
