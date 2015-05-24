@@ -23,7 +23,7 @@ public class Server {
         SEEDS   { public String toString() { return "seeds"; } },
     }
 
-    public void init(String [] args) {
+    public Server(String [] args) {
         for (int i = 0; i < args.length; i++) {
             String opt = args[i];
             if (opt.endsWith(Options.HOST.toString())) {
