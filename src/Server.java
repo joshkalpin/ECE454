@@ -1,4 +1,4 @@
-public class Server {
+public abstract class Server {
     /**
     *   host: name of host on which this process will run
     *   pport:port number for password service
@@ -6,8 +6,6 @@ public class Server {
     *   ncores: number of cores available to the process
     *   seeds: comma-separated list of host:portpairs corresponding to FE seed nodes
     **/
-
-    public static final int SAFE_PORT_NUM = 18726;
 
     private String host;
     private int pport;
@@ -62,4 +60,6 @@ public class Server {
     public String[] getSeeds() {
         return seeds;
     }
+
+    protected abstract void start();
 }
