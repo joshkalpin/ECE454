@@ -41,15 +41,18 @@
   <target name="main" description="execute the program" depends="compile" >
     <jar jarfile="main.jar" basedir="${build}"/>
     <parallel>
-      <java classname="BEServer" fork="true" timeout="10000"
-        classpathref="main.classpath" failonerror="false" output="${build}/log/BEServer.log">
-        <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
-      </java>
+      <sequential>
+        <echo>backend client:</echo>
+        <java classname="BEServer"
+          classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log">
+          <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+        </java>
+      </sequential>
       <sequential>
         <sleep seconds="2"/>
         <echo>frontend client:</echo>
         <java classname="FEServer"
-          classpathref="main.classpath" failonerror="true">
+          classpathref="main.classpath" failonerror="true" output="${build}/log/FEServer.log">
           <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
       </java>
       </sequential>
