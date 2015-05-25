@@ -52,7 +52,11 @@ public abstract class Server {
             String[] parts = seed.split(":");
             String hostname = parts[0];
             int port = new Integer(parts[0]);
-            seeds.add(new DiscoveryInfo(hostname, port));
+            DiscoveryInfo info = new DiscoveryInfo();
+            info.setHost(hostname);
+            info.setMport(port);
+            info.setIsBEServer(false);
+            seeds.add(info);
         }
     }
 

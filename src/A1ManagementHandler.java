@@ -15,12 +15,12 @@ public class A1ManagementHandler implements A1Management.Iface {
     }
 
     @Override
-    public PerfCounters getPerfCounters() throws org.apache.thrift.TException {
+    public PerfCounters getPerfCounters() throws TException {
         return new PerfCounters((int)System.currentTimeMillis() - (int)birthTime, numReceived, numCompleted);
     }
 
     @Override
-    public List<String> getGroupMembers() throws org.apache.thrift.TException {
+    public List<String> getGroupMembers() throws TException {
         List<String> members = new ArrayList<String>();
         members.add("jzanutto");
         members.add("jkalpin");

@@ -1,15 +1,22 @@
-import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.*;
 import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.server.TSimpleServer;
-import org.apache.thrift.server.TThreadPoolServer;
-import org.apache.thrift.transport.TSSLTransportFactory;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.transport.*;
+import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import java.util.List;
 
 import ece454750s15a1.*;
 
 public class BEServer extends Server {
+
+    private DiscoveryInfo info;
+
+    public static int DISCOVERY_TIMEOUT = 10000;
+
+    public DiscoveryInfo getInfo() {
+        return info;
+    }
+
     public static void main(String[] args) {
         Server server = new BEServer(args);
         server.start();
@@ -17,6 +24,7 @@ public class BEServer extends Server {
 
     public BEServer(String[] args) {
         super(args);
+        info = new DiscoveryInfo(this.getHost(), this.getMPort(), this.getPPort(), true);
     }
 
     @Override
@@ -40,7 +48,7 @@ public class BEServer extends Server {
 
             TServerTransport managementTransport = new TServerSocket(this.getMPort());
             A1Management.Processor managementProcessor = new A1Management.Processor(new A1ManagementHandler());
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementArgs);
+            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
             managementArgs.maxWorkerThreads(getNCores());
             final TServer managementServer =
                 new TThreadPoolServer(managementArgs.processor(managementProcessor));
@@ -53,8 +61,33 @@ public class BEServer extends Server {
             };
 
             new Thread(managementHandler).start();
+
+            List<DiscoveryInfo> seeds = getSeeds();
+            for (DiscoveryInfo seed : seeds) {
+                register(seed.getHost(), seed.getMport());
+            }
         }
         catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void register(String host, int mPort) {
+        try {
+            TSocket transport;
+            transport = new TSocket(host, mPort);
+            TProtocol protocol = new TBinaryProtocol(transport);
+            A1Management.Client client = new A1Management.Client(protocol);
+            // set timeout to 10 seconds
+            transport.setTimeout(DISCOVERY_TIMEOUT);
+            transport.open();
+
+            client.registerNode(getInfo());
+
+            transport.close();
+        } catch (Exception e) {
+            System.out.println("Failed to register with " + host + ":" + mPort);
             e.printStackTrace();
         }
     }

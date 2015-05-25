@@ -12,8 +12,12 @@ struct PerfCounters {
 struct DiscoveryInfo {
     // the host name for service discovery
     1: string host,
-    // the port for the node
-    2: i32 port
+    // management port
+    2: i32 mport,
+    // password port
+    3: i32 pport,
+    // the type of server
+    4: bool isBEServer
 }
 
 service A1Management {
