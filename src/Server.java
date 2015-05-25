@@ -1,3 +1,8 @@
+import ece454750s15a1.DiscoveryInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Server {
     /**
     *   host: name of host on which this process will run
@@ -11,7 +16,7 @@ public abstract class Server {
     private int pport;
     private int mport;
     private int ncores;
-    private String [] seeds;
+    private List<DiscoveryInfo> seeds;
 
     public enum Options {
         HOST    { public String toString() { return "host"; } },
@@ -33,11 +38,21 @@ public abstract class Server {
             } else if (opt.endsWith(Options.NCORES.toString())) {
                 ncores = Integer.parseInt(args[++i]);
             } else if (opt.endsWith(Options.SEEDS.toString())) {
-                seeds = args[++i].split(",");
+                createSeeds(args[++i].split(","));
             } else {
                 System.out.println("Invalid option " + args[i] + " provided to server. Exiting...");
                 System.exit(0);
             }
+        }
+    }
+
+    private void createSeeds(String[] rawSeeds) {
+        seeds = new ArrayList<DiscoveryInfo>();
+        for (String seed : rawSeeds) {
+            String[] parts = seed.split(":");
+            String hostname = parts[0];
+            int port = new Integer(parts[0]);
+            seeds.add(new DiscoveryInfo(hostname, port));
         }
     }
 
@@ -57,7 +72,7 @@ public abstract class Server {
         return ncores;
     }
 
-    public String[] getSeeds() {
+    public List<DiscoveryInfo> getSeeds() {
         return seeds;
     }
 
