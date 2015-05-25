@@ -76,6 +76,13 @@
     </java>
   </target>
 
+  <target name="client" description="Run a test client" depends="compile, main" >
+    <echo>Test client process:</echo>
+    <java classname="A1Client" classpathref="main.classpath" failonerror="true">
+        <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+    </java>
+  </target>
+
   <target name="generate">
     <!-- Generate the thrift gen-java source -->
     <!-- exec executable="../../compiler/cpp/thrift" failonerror="true" -->
