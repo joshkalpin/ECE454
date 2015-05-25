@@ -18,6 +18,7 @@ public class A1Client extends Server {
         super(args);
     }
 
+    @Override
     protected void start() {
         TTransport transport;
         try {
