@@ -11,14 +11,8 @@ import ece454750s15a1.*;
 
 public class BEServer extends Server {
     public static void main(String[] args) {
-        final Server server = new BEServer(args);
-        Runnable bgServer = new Runnable() {
-            public void run() {
-                server.start();
-            }
-        };
-
-        new Thread(bgServer).start();
+        Server server = new BEServer(args);
+        server.start();
     }
 
     public BEServer(String[] args) {
@@ -28,12 +22,33 @@ public class BEServer extends Server {
     @Override
     protected void start() {
         try {
-            TServerTransport serverTransport = new TServerSocket(this.getPPort());
-            A1Password.Processor processor = new A1Password.Processor(new A1PasswordHandler());
-            TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
-            System.out.println("Starting BE Node on port " + this.getPPort() + "...");
+            TServerTransport passwordTransport = new TServerSocket(this.getPPort());
+            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler());
+            final TServer passwordServer =
+                new TThreadPoolServer(new TThreadPoolServer.Args(passwordTransport).processor(passwordProcessor));
+            System.out.println("Starting BE password service " + this.getPPort() + "...");
 
-            server.serve();
+            Runnable passwordHandler = new Runnable() {
+                public void run() {
+                    passwordServer.serve();
+                }
+            };
+
+            new Thread(passwordHandler).start();
+
+            TServerTransport managementTransport = new TServerSocket(this.getMPort());
+            A1Management.Processor managementProcessor = new A1Management.Processor(new A1ManagementHandler());
+            final TServer managementServer =
+                new TThreadPoolServer(new TThreadPoolServer.Args(managementTransport).processor(managementProcessor));
+            System.out.println("Starting BE management server " + this.getMPort() + "...");
+
+            Runnable managementHandler = new Runnable() {
+                public void run() {
+                    managementServer.serve();
+                }
+            };
+
+            new Thread(managementHandler).start();
         }
         catch (Exception e) {
             e.printStackTrace();

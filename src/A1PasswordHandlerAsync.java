@@ -20,5 +20,4 @@ public class A1PasswordHandlerAsync implements A1Password.AsyncIface {
     throws ServiceUnavailableException, TException {
         resultHandler.onComplete(BCrypt.checkpw(password, hash));
     }
-
 }
