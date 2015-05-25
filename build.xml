@@ -1,4 +1,4 @@
-<project name="ece454750s15a1" default="main" basedir=".">
+<project name="ece454750s15a1" default="compile" basedir=".">
 
   <description>ECE454 A1</description>
 
@@ -40,33 +40,17 @@
 
   <target name="main" description="execute the program" depends="compile" >
     <jar jarfile="main.jar" basedir="${build}"/>
-    <parallel>
-      <sequential>
-        <echo>backend client:</echo>
-        <java classname="BEServer"
-          classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log" >
-          <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
-        </java>
-      </sequential>
-      <sequential>
-        <sleep seconds="2"/>
-        <echo>frontend client:</echo>
-        <java classname="FEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/FEServer.log">
-          <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
-      </java>
-      </sequential>
-    </parallel>
   </target>
 
 
-  <target name="backendserver" description="Run a backend server" >
+  <target name="be" description="Run a backend server" >
     <echo>backend client simple:</echo>
     <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log">
       <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
 
-  <target name="frontendserver" description="Run a backend server" >
+  <target name="fe" description="Run a frontend server" >
     <echo>frontend client simple:</echo>
     <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/FEServer.log">
       <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
