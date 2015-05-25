@@ -63,7 +63,7 @@
   <target name="backendserver" description="Run a backend server" depends="compile" >
     <echo>backend client simple:</echo>
     <java classname="BEServer"
-      classpathref="main.classpath" failonerror="true"
+      classpathref="main.classpath" failonerror="true">
       <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
