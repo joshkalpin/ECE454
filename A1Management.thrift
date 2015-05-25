@@ -23,6 +23,6 @@ struct DiscoveryInfo {
 service A1Management {
     PerfCounters getPerfCounters(),
     list<string> getGroupMembers(),
-    bool registerNode(DiscoveryInfo discoveryInfo)
+    bool registerNode(1:DiscoveryInfo discoveryInfo)
     // TODO: additional interface content if necessary
 }

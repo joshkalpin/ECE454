@@ -51,7 +51,7 @@ public abstract class Server {
         for (String seed : rawSeeds) {
             String[] parts = seed.split(":");
             String hostname = parts[0];
-            int port = new Integer(parts[0]);
+            int port = new Integer(parts[1]);
             DiscoveryInfo info = new DiscoveryInfo();
             info.setHost(hostname);
             info.setMport(port);

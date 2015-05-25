@@ -44,15 +44,14 @@
       <sequential>
         <echo>backend client:</echo>
         <java classname="BEServer"
-          classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log">
+          classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log" fork="true">
           <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
         </java>
       </sequential>
       <sequential>
         <sleep seconds="2"/>
         <echo>frontend client:</echo>
-        <java classname="FEServer"
-          classpathref="main.classpath" failonerror="true" output="${build}/log/FEServer.log">
+        <java classname="FEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/FEServer.log">
           <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
       </java>
       </sequential>
@@ -62,16 +61,14 @@
 
   <target name="backendserver" description="Run a backend server" depends="compile" >
     <echo>backend client simple:</echo>
-    <java classname="BEServer"
-      classpathref="main.classpath" failonerror="true">
+    <java classname="BEServer" classpathref="main.classpath" failonerror="true" fork="true" output="${build}/log/BEServer.log">
       <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
 
   <target name="frontendserver" description="Run a backend server" depends="compile" >
     <echo>frontend client simple:</echo>
-    <java classname="FEServer"
-      classpathref="main.classpath" failonerror="true">
+    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/FEServer.log" fork="true">
       <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
