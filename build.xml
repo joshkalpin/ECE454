@@ -53,7 +53,7 @@
         <echo>frontend client:</echo>
         <java classname="FEServer"
           classpathref="main.classpath" failonerror="true" output="${build}/log/FEServer.log">
-          <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+          <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 1 -seeds ecelinux1:38726,ecelinux2:38726"/>
       </java>
       </sequential>
     </parallel>
@@ -64,7 +64,7 @@
     <echo>backend client simple:</echo>
     <java classname="BEServer"
       classpathref="main.classpath" failonerror="true">
-      <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+      <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 1 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
 
@@ -72,14 +72,14 @@
     <echo>frontend client simple:</echo>
     <java classname="FEServer"
       classpathref="main.classpath" failonerror="true">
-      <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+      <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 1 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
 
   <target name="client" description="Run a test client" depends="compile, main" >
     <echo>Test client process:</echo>
     <java classname="A1Client" classpathref="main.classpath" failonerror="true">
-        <arg line="-host localhost -pport 18726 -mport 28726 -ncores 1 -seeds localhost:18726,localhost:28726"/>
+        <arg line="-host ecelinux1 -pport 18726 -mport 28726 -ncores 1 -seeds ecelinux1:38726,ecelinux2:38726"/>
     </java>
   </target>
 

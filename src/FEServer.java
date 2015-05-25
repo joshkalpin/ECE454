@@ -30,7 +30,9 @@ public class FEServer extends Server {
         try {
             TServerTransport serverTransport = new TServerSocket(this.getMPort());
             A1Management.Processor processor = new A1Management.Processor(new A1ManagementHandler());
-            TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
+            TThreadPoolServer.Args args = new TThreadPoolServer.Args(serverTransport);
+            args.maxWorkerThreads(getNCores());
+            TServer server = new TThreadPoolServer(args.processor(processor));
             System.out.println("Starting FE Node on port " + this.getMPort() + "...");
 
             server.serve();
