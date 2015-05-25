@@ -8,11 +8,11 @@ public class A1PasswordHandler implements A1Password.Iface {
 
     public A1PasswordHandler() {}
 
-    public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, org.apache.thrift.TException {
+    public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         return BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
     }
 
-    public boolean checkPassword(String password, String hash) throws org.apache.thrift.TException {
+    public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
         return BCrypt.checkpw(password, hash);
     }
 
