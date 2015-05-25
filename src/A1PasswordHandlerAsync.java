@@ -16,7 +16,7 @@ public class A1PasswordHandlerAsync implements A1Password.AsyncIface {
 
     public void checkPassword(String password, String hash, AsyncMethodCallback resultHandler)
     throws ServiceUnavailableException, TException {
-        BCrypt.checkpw(password, hash);
+        resultHandler.onComplete(BCrypt.checkpw(password, hash));
     }
 
 }
