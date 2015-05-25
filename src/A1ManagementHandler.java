@@ -27,6 +27,11 @@ public class A1ManagementHandler implements A1Management.Iface {
         return members;
     }
 
+    @Override
+    public boolean registerNode(DiscoveryInfo discoveryInfo) throws TException {
+        return false;
+    }
+
     public void receiveRequest() {
         ++numReceived;
     }

@@ -24,5 +24,10 @@ public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
         resultHandler.onComplete(members);
     }
 
+    @Override
+    public void registerNode(DiscoveryInfo discoveryInfo, AsyncMethodCallback resultHandler) throws TException {
+
+    }
+
 
 }

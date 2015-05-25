@@ -1,4 +1,5 @@
 import ece454750s15a1.A1Management;
+import ece454750s15a1.DiscoveryInfo;
 import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
@@ -13,5 +14,10 @@ public class A1ManagementForwarder implements A1Management.Iface {
     @Override
     public List<String> getGroupMembers() throws TException {
         return null;
+    }
+
+    @Override
+    public boolean registerNode(DiscoveryInfo discoveryInfo) throws TException {
+        return false;
     }
 }

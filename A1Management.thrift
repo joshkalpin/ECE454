@@ -9,8 +9,16 @@ struct PerfCounters {
     3: i32 numRequestsCompleted
 }
 
+struct DiscoveryInfo {
+    // the host name for service discovery
+    1: string host,
+    // the port for the node
+    2: i32 port
+}
+
 service A1Management {
     PerfCounters getPerfCounters(),
-    list<string> getGroupMembers()
+    list<string> getGroupMembers(),
+    bool registerNode(DiscoveryInfo discoveryInfo)
     // TODO: additional interface content if necessary
 }
