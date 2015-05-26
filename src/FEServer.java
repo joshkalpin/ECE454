@@ -34,7 +34,13 @@ public class FEServer extends Server {
 
             A1ManagementForwarder forwarder;
             List <DiscoveryInfo> seeds = getSeeds();
-            boolean isSeed = getSeeds().contains(self);
+            boolean isSeed = false;
+            for (DiscoveryInfo seed : seeds) {
+                if (seed.getHost().equals(this.getHost())
+                    && seed.getMport() == this.getMPort()
+                    && seed.isIsBEServer())
+                isSeed = true;
+            }
             if (isSeed) {
                 logger.info("Server is seed node.");
                 forwarder = new A1ManagementForwarder(seeds, self);
