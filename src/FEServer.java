@@ -61,6 +61,7 @@ public class FEServer extends Server {
                 }
             };
             new Thread(manager).start();
+
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
                     register(seed.getHost(), seed.getMport(), logger, self);
