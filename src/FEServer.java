@@ -37,8 +37,8 @@ public class FEServer extends Server {
             boolean isSeed = false;
             for (DiscoveryInfo seed : seeds) {
                 if (seed.getHost().equals(this.getHost())
-                    && seed.getMport() == this.getMPort()
-                    && !seed.isIsBEServer()) {
+                    && seed.getMport() == this.getMPort()) {
+
                     isSeed = true;
                 }
             }
@@ -53,14 +53,14 @@ public class FEServer extends Server {
             A1Management.Processor processor = new A1Management.Processor(forwarder);
             TThreadPoolServer.Args args = new TThreadPoolServer.Args(serverTransport);
             final TServer server = new TThreadPoolServer(args.processor(processor));
-            logger.info("Starting FE Node on port " + this.getMPort() + "...");
+            logger.info(this.getHost() + ": Starting FE Node on port " + this.getMPort() + "...");
 
             Runnable manager = new Runnable() {
                 public void run() {
                     server.serve();
                 }
             };
-
+            new Thread(manager).start();
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
                     register(seed.getHost(), seed.getMport(), logger, self);
