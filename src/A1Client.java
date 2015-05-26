@@ -22,10 +22,9 @@ public class A1Client extends Server {
         TTransport transport;
         try {
             transport = new TSocket(getHost(), getPPort());
+            transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);
             A1Password.Client client = new A1Password.Client(protocol);
-
-            transport.open();
 
             String passwd = "hunter2";
             short rounds = 16;

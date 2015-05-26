@@ -39,7 +39,7 @@ public class BEServer extends Server {
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
             final TServer passwordServer =
                 new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
-            System.out.println("Starting BE password service " + this.getPPort() + "...");
+            logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
             Runnable passwordHandler = new Runnable() {
                 public void run() {
@@ -55,7 +55,8 @@ public class BEServer extends Server {
             TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
             final TServer managementServer =
                 new TThreadPoolServer(managementArgs.processor(managementProcessor));
-            System.out.println("Starting BE management server " + this.getMPort() + "...");
+
+            logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
 
             Runnable managementHandler = new Runnable() {
                 public void run() {

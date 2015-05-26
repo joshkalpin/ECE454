@@ -3,6 +3,7 @@ import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -72,12 +73,12 @@ public abstract class Server {
     protected void register(String host, int mPort, Logger logger, DiscoveryInfo registrationNode) {
         try {
             logger.info("Registering with node " + host + ":" + mPort);
-            TSocket transport = new TSocket(host, mPort);
+            TTransport transport = new TSocket(host, mPort);
+            transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);
             A1Management.Client client = new A1Management.Client(protocol);
             // set timeout to 10 seconds
-            transport.setTimeout(DISCOVERY_TIMEOUT);
-            transport.open();
+            // transport.setTimeout(DISCOVERY_TIMEOUT);
 
             client.registerNode(registrationNode);
 
