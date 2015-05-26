@@ -38,8 +38,9 @@ public class FEServer extends Server {
             for (DiscoveryInfo seed : seeds) {
                 if (seed.getHost().equals(this.getHost())
                     && seed.getMport() == this.getMPort()
-                    && seed.isIsBEServer())
-                isSeed = true;
+                    && !seed.isIsBEServer()) {
+                    isSeed = true;
+                }
             }
             if (isSeed) {
                 logger.info("Server is seed node.");
