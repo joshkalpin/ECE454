@@ -4,20 +4,18 @@ import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class FEServer extends Server {
-    public static void main(String[] args) {
-        final Server server = new FEServer(args);
-        Runnable bgServer = new Runnable() {
-            public void run() {
-                server.start();
-            }
-        };
 
-        new Thread(bgServer).start();
+    Logger logger;
+
+    public static void main(String[] args) {
+        Server server = new FEServer(args);
+        server.start();
     }
 
     private DiscoveryInfo self;
@@ -25,6 +23,8 @@ public class FEServer extends Server {
     public FEServer(String[] args) {
         super(args);
         self = new DiscoveryInfo(getHost(), getMPort(), getPPort(), false);
+        logger = LoggerFactory.getLogger(FEServer.class);
+        logger.info("Node created...");
     }
 
     @Override
@@ -36,22 +36,27 @@ public class FEServer extends Server {
             List <DiscoveryInfo> seeds = getSeeds();
             boolean isSeed = getSeeds().contains(self);
             if (isSeed) {
+                logger.info("Server is seed node.");
                 forwarder = new A1ManagementForwarder(seeds, self);
             } else {
+                logger.info("Server is not seed node");
                 forwarder = new A1ManagementForwarder(seeds);
             }
 
             A1Management.Processor processor = new A1Management.Processor(forwarder);
             TThreadPoolServer.Args args = new TThreadPoolServer.Args(serverTransport);
-            args.maxWorkerThreads(getNCores());
-            TServer server = new TThreadPoolServer(args.processor(processor));
-            System.out.println("Starting FE Node on port " + this.getMPort() + "...");
+            final TServer server = new TThreadPoolServer(args.processor(processor));
+            logger.info("Starting FE Node on port " + this.getMPort() + "...");
 
-            server.serve();
+            Runnable manager = new Runnable() {
+                public void run() {
+                    server.serve();
+                }
+            };
 
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
-                    register(seed.getHost(), seed.getMport(), LoggerFactory.getLogger(FEServer.class), self);
+                    register(seed.getHost(), seed.getMport(), logger, self);
                 }
             }
         }
