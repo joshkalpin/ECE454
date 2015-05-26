@@ -1,4 +1,9 @@
+import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +22,10 @@ public abstract class Server {
     private int mport;
     private int ncores;
     private List<DiscoveryInfo> seeds;
+
+
+    protected static int DISCOVERY_TIMEOUT = 10000;
+
 
     public enum Options {
         HOST    { public String toString() { return "host"; } },
@@ -57,6 +66,25 @@ public abstract class Server {
             info.setMport(port);
             info.setIsBEServer(false);
             seeds.add(info);
+        }
+    }
+
+    protected void register(String host, int mPort, Logger logger, DiscoveryInfo registrationNode) {
+        try {
+            logger.info("Registering with node " + host + ":" + mPort);
+            TSocket transport = new TSocket(host, mPort);
+            TProtocol protocol = new TBinaryProtocol(transport);
+            A1Management.Client client = new A1Management.Client(protocol);
+            // set timeout to 10 seconds
+            transport.setTimeout(DISCOVERY_TIMEOUT);
+            transport.open();
+
+            client.registerNode(registrationNode);
+
+            transport.close();
+        } catch (Exception e) {
+            logger.warn("Failed to register with " + host + ":" + mPort);
+            e.printStackTrace();
         }
     }
 

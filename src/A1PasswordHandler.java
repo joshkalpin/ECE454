@@ -1,8 +1,9 @@
+import ece454750s15a1.A1Password;
+import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
 
 // generated thrift code
-import ece454750s15a1.*;
 
 public class A1PasswordHandler implements A1Password.Iface {
 

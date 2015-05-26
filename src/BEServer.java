@@ -1,22 +1,19 @@
-import org.apache.thrift.server.*;
-import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.transport.*;
-import org.apache.thrift.protocol.*;
-import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
-import java.util.List;
-
+import ece454750s15a1.A1Management;
+import ece454750s15a1.A1Password;
+import ece454750s15a1.DiscoveryInfo;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ece454750s15a1.*;
+import java.util.List;
 
 public class BEServer extends Server {
 
     private DiscoveryInfo info;
     private Logger logger;
-
-
-    public static int DISCOVERY_TIMEOUT = 10000;
 
     public DiscoveryInfo getInfo() {
         return info;
@@ -71,31 +68,10 @@ public class BEServer extends Server {
 
             List<DiscoveryInfo> seeds = getSeeds();
             for (DiscoveryInfo seed : seeds) {
-                register(seed.getHost(), seed.getMport());
+                register(seed.getHost(), seed.getMport(), logger, getInfo());
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void register(String host, int mPort) {
-        try {
-            logger.info("Registering with node " + host + ":" + mPort);
-            TSocket transport;
-            transport = new TSocket(host, mPort);
-            TProtocol protocol = new TBinaryProtocol(transport);
-            A1Management.Client client = new A1Management.Client(protocol);
-            // set timeout to 10 seconds
-            transport.setTimeout(DISCOVERY_TIMEOUT);
-            transport.open();
-
-            client.registerNode(getInfo());
-
-            transport.close();
-        } catch (Exception e) {
-            logger.warn("Failed to register with " + host + ":" + mPort);
             e.printStackTrace();
         }
     }

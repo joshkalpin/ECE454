@@ -1,9 +1,13 @@
+import ece454750s15a1.A1Management;
+import ece454750s15a1.DiscoveryInfo;
+import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // generated thrift code
-import ece454750s15a1.*;
 
 public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
 
