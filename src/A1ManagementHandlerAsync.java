@@ -33,5 +33,13 @@ public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
 
     }
 
+    @Override
+    public void getBackendNodes(AsyncMethodCallback resultHandler) throws TException {
 
+    }
+
+    @Override
+    public void getRequestNode(AsyncMethodCallback resultHandler) throws TException {
+
+    }
 }

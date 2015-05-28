@@ -36,6 +36,16 @@ public class A1ManagementHandler implements A1Management.Iface {
         return false;
     }
 
+    @Override
+    public List<DiscoveryInfo> getBackendNodes() throws TException {
+        return null;
+    }
+
+    @Override
+    public DiscoveryInfo getRequestNode() throws TException {
+        return null;
+    }
+
     public void receiveRequest() {
         ++numReceived;
     }
