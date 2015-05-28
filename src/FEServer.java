@@ -56,13 +56,6 @@ public class FEServer extends Server {
             final TServer server = new TThreadPoolServer(args.processor(processor));
             logger.info(this.getHost() + ": Starting FE Node on port " + this.getMPort() + "...");
 
-            Runnable manager = new Runnable() {
-                public void run() {
-                    logger.info("serving server");
-                    server.serve();
-                }
-            };
-
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
                     logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
@@ -70,8 +63,8 @@ public class FEServer extends Server {
                 }
             }
 
-            manager.run();
-
+            logger.info("serving server");
+            server.serve();
 
         }
         catch (Exception e) {
