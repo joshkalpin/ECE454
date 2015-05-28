@@ -28,11 +28,12 @@ public class A1ManagementForwarder implements A1Management.Iface {
         this.seeds = seeds;
         backEndNodes = new ArrayList<DiscoveryInfo>();
         rng = new Random(System.currentTimeMillis());
-        logger = LoggerFactory.getLogger(this.getClass());
+        logger = LoggerFactory.getLogger(FEServer.class);
     }
 
     public A1ManagementForwarder(List<DiscoveryInfo> seeds, DiscoveryInfo self) {
         this(seeds);
+        logger.info("Creating seed node");
         frontEndNodes = new ArrayList<DiscoveryInfo>(seeds);
         frontEndNodes.remove(self);
         isSeed = true;
@@ -55,8 +56,10 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
 
         if (discoveryInfo.isIsBEServer()) {
+            logger.info("Registered backend node");
             backEndNodes.add(discoveryInfo);
         } else {
+            logger.info("Registered frontend node");
             frontEndNodes.add(discoveryInfo);
         }
 

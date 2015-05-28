@@ -58,19 +58,16 @@ public class BEServer extends Server {
 
             logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
 
-            Runnable managementHandler = new Runnable() {
-                public void run() {
-                    managementServer.serve();
-                }
-            };
-
             logger.info("Attempting to start management service...");
-            new Thread(managementHandler).start();
 
             List<DiscoveryInfo> seeds = getSeeds();
             for (DiscoveryInfo seed : seeds) {
                 register(seed.getHost(), seed.getMport(), logger, getInfo());
             }
+
+            managementServer.serve();
+
+
         }
         catch (Exception e) {
             e.printStackTrace();
