@@ -1,5 +1,6 @@
 import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
+import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -63,12 +64,12 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public List<DiscoveryInfo> getBackendNodes() throws TException {
+    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException, InvalidNodeException {
         if (isSeed) {
             return backEndNodes;
         }
 
-        return null;
+        throw new InvalidNodeException("This is not a seed node", seeds);
     }
 
     @Override
@@ -102,7 +103,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
                 // set timeout to 10 seconds
                 // transport.setTimeout(DISCOVERY_TIMEOUT);
 
-                this.backEndNodes = client.getBackendNodes();
+                this.backEndNodes = client.getUpdatedBackendNodeList();
                 transport.close();
                 return;
             } catch (Exception e) {

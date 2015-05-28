@@ -22,14 +22,14 @@ struct DiscoveryInfo {
 
 exception InvalidNodeException {
     1: string msg,
-    list<DiscoveryInfo> seeds
+    2: list<DiscoveryInfo> seeds
 }
 
 service A1Management {
     PerfCounters getPerfCounters(),
     list<string> getGroupMembers(),
-    bool registerNode(1:DiscoveryInfo discoveryInfo),
-    list<DiscoveryInfo> getBackendNodes() throws Invalid;
-    DiscoveryInfo getRequestNode() throws InvalidNodeException;
+    bool registerNode(1:DiscoveryInfo discoveryInfo) throws (1:InvalidNodeException e),
+    list<DiscoveryInfo> getUpdatedBackendNodeList() throws (1:InvalidNodeException e),
+    DiscoveryInfo getRequestNode() throws (1:InvalidNodeException e)
     // TODO: additional interface content if necessary
 }

@@ -34,7 +34,7 @@ public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
     }
 
     @Override
-    public void getBackendNodes(AsyncMethodCallback resultHandler) throws TException {
+    public void getUpdatedBackendNodeList(AsyncMethodCallback resultHandler) throws TException {
 
     }
 

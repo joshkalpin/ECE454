@@ -1,5 +1,6 @@
 import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
+import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
@@ -33,17 +34,17 @@ public class A1ManagementHandler implements A1Management.Iface {
 
     @Override
     public boolean registerNode(DiscoveryInfo discoveryInfo) throws TException {
-        return false;
+        throw new InvalidNodeException();
     }
 
     @Override
-    public List<DiscoveryInfo> getBackendNodes() throws TException {
-        return null;
+    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException {
+        throw new InvalidNodeException();
     }
 
     @Override
     public DiscoveryInfo getRequestNode() throws TException {
-        return null;
+        throw new InvalidNodeException();
     }
 
     public void receiveRequest() {
