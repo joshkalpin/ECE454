@@ -45,30 +45,38 @@
 
   <target name="be" description="Run a backend server" >
     <echo>backend node:</echo>
-    <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer.log">
-      <arg line="-host ${hostname} -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
+    <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/BEServer-${hostname}.log">
+      <arg line="-host ${hostname} -pport 13271 -mport 3271 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>
 
   <target name="fe" description="Run a frontend server" >
     <echo>frontend node:</echo>
-    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/FEServer.log">
-      <arg line="-host ${hostname} -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
+    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/FEServer-${hostname}.log">
+      <arg line="-host ${hostname} -pport 13272 -mport 3722 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>
 
   <target name="seed" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
     <java classname="FEServer" classpathref="main.classpath"
-      failonerror="true" output="${build}/log/FEServer.log">
-      <arg line="-host ${hostname} -pport 48726 -mport 38726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
+      failonerror="true" output="${build}/log/FEServer-${hostname}.log">
+      <arg line="-host ${hostname} -pport 18726 -mport 8726 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>
 
-  <target name="client" description="Run a test client" depends="compile, main" >
+<target name="seed2" description="Run a seed fe server" >
+    <echo>front end seed server:</echo>
+    <java classname="FEServer" classpathref="main.classpath"
+      failonerror="true" output="${build}/log/FEServer-${hostname}.log">
+      <arg line="-host ${hostname} -pport 18727 -mport 8727 -ncores 2 -seeds localhost:8726,localhost:8727"/>
+    </java>
+  </target>
+
+  <target name="client" description="Run a test client" >
     <echo>Test client:</echo>
     <java classname="A1Client" classpathref="main.classpath" failonerror="true">
-      <arg line="-host ${hostname} -pport 18726 -mport 28726 -ncores 2 -seeds ecelinux1:38726,ecelinux2:38726"/>
+      <arg line="-host ${hostname} -pport 18726 -mport 8726 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>
 
