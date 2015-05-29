@@ -60,7 +60,7 @@
   <target name="seed" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
     <java classname="FEServer" classpathref="main.classpath"
-      failonerror="true" output="${build}/log/FEServer-${hostname}.log">
+      failonerror="true" output="${build}/log/FEServer-${hostname}-seed.log">
       <arg line="-host ${hostname} -pport 18726 -mport 8726 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>
@@ -68,7 +68,7 @@
 <target name="seed2" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
     <java classname="FEServer" classpathref="main.classpath"
-      failonerror="true" output="${build}/log/FEServer-${hostname}.log">
+      failonerror="true" output="${build}/log/FEServer-${hostname}-seed2.log">
       <arg line="-host ${hostname} -pport 18727 -mport 8727 -ncores 2 -seeds localhost:8726,localhost:8727"/>
     </java>
   </target>

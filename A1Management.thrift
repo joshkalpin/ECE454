@@ -20,9 +20,16 @@ struct DiscoveryInfo {
     4: bool isBEServer
 }
 
+exception InvalidNodeException {
+    1: string msg,
+    2: list<DiscoveryInfo> seeds
+}
+
 service A1Management {
     PerfCounters getPerfCounters(),
     list<string> getGroupMembers(),
-    bool registerNode(1:DiscoveryInfo discoveryInfo)
+    bool registerNode(1:DiscoveryInfo discoveryInfo) throws (1:InvalidNodeException e),
+    list<DiscoveryInfo> getUpdatedBackendNodeList() throws (1:InvalidNodeException e),
+    DiscoveryInfo getRequestNode() throws (1:InvalidNodeException e)
     // TODO: additional interface content if necessary
 }

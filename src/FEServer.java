@@ -30,6 +30,7 @@ public class FEServer extends Server {
     @Override
     protected void start() {
         try {
+            logger.info("Starting server");
             TServerTransport serverTransport = new TServerSocket(this.getMPort());
 
             A1ManagementForwarder forwarder;
@@ -55,20 +56,19 @@ public class FEServer extends Server {
             final TServer server = new TThreadPoolServer(args.processor(processor));
             logger.info(this.getHost() + ": Starting FE Node on port " + this.getMPort() + "...");
 
-            Runnable manager = new Runnable() {
-                public void run() {
-                    server.serve();
-                }
-            };
-            new Thread(manager).start();
-
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
+                    logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
                     register(seed.getHost(), seed.getMport(), logger, self);
                 }
             }
+
+            logger.info("serving server");
+            server.serve();
+
         }
         catch (Exception e) {
+            logger.error("Exception thrown");
             e.printStackTrace();
         }
     }
