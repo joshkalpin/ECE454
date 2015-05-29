@@ -21,7 +21,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     private Map<DiscoveryInfo, TTransport> openConnections;
 
     public A1PasswordForwarder(DiscoveryInfo self) {
-        logger = LoggerFactory.getLogger(this.getClass());
+        logger = LoggerFactory.getLogger(FEServer.class);
         openConnections = new HashMap<DiscoveryInfo, TTransport>();
         try {
             logger.info("Opening connection with management node " + self.getHost() + ":" + self.getMport());
