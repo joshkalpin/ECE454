@@ -47,6 +47,16 @@ public class A1ManagementHandler implements A1Management.Iface {
         throw new InvalidNodeException();
     }
 
+    @Override
+    public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp) throws TException, InvalidNodeException {
+        throw new InvalidNodeException();
+    }
+
+    @Override
+    public void reportNode(DiscoveryInfo backendNode, long timestamp) throws TException, InvalidNodeException {
+        throw new InvalidNodeException();
+    }
+
     public void receiveRequest() {
         ++numReceived;
     }

@@ -1,3 +1,4 @@
+import ece454750s15a1.A1Password;
 import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.server.TServer;
@@ -31,9 +32,9 @@ public class FEServer extends Server {
     protected void start() {
         try {
             logger.info("Starting server");
-            TServerTransport serverTransport = new TServerSocket(this.getMPort());
+            TServerTransport managementServerSocket = new TServerSocket(this.getMPort());
 
-            A1ManagementForwarder forwarder;
+            A1ManagementForwarder managementForwarder;
             List <DiscoveryInfo> seeds = getSeeds();
             boolean isSeed = false;
             for (DiscoveryInfo seed : seeds) {
@@ -45,16 +46,25 @@ public class FEServer extends Server {
             }
             if (isSeed) {
                 logger.info("Server is seed node.");
-                forwarder = new A1ManagementForwarder(seeds, self);
+                managementForwarder = new A1ManagementForwarder(seeds, self);
             } else {
                 logger.info("Server is not seed node");
-                forwarder = new A1ManagementForwarder(seeds);
+                managementForwarder = new A1ManagementForwarder(seeds);
             }
 
-            A1Management.Processor processor = new A1Management.Processor(forwarder);
-            TThreadPoolServer.Args args = new TThreadPoolServer.Args(serverTransport);
-            final TServer server = new TThreadPoolServer(args.processor(processor));
-            logger.info(this.getHost() + ": Starting FE Node on port " + this.getMPort() + "...");
+            logger.info(this.getHost() + ": opening " + this.getMPort() + " for management server...");
+
+            A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
+            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementServerSocket);
+            final TServer managementServer = new TThreadPoolServer(managementArgs.processor(managementProcessor));
+
+            logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
+
+            TServerTransport passwordServerSocket = new TServerSocket(this.getPPort());
+            A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(self);
+            A1Password.Processor passwordProcessor = new A1Password.Processor(passwordForwarder);
+            TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordServerSocket);
+            final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
 
             if (!isSeed) {
                 for (DiscoveryInfo seed : seeds) {
@@ -63,8 +73,15 @@ public class FEServer extends Server {
                 }
             }
 
-            logger.info("serving server");
-            server.serve();
+            Runnable passwordService = new Runnable() {
+                public void run() {
+                    passwordServer.serve();
+                }
+            };
+            logger.info("Starting password forwarder.");
+            new Thread(passwordService).start();
+            logger.info("Starting management server.");
+            managementServer.serve();
 
         }
         catch (Exception e) {
