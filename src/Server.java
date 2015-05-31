@@ -83,6 +83,7 @@ public abstract class Server {
             client.registerNode(registrationNode);
 
             transport.close();
+            logger.info("Successfully registered with " + host + ":" + mPort + ".");
         } catch (Exception e) {
             logger.warn("Failed to register with " + host + ":" + mPort);
             e.printStackTrace();

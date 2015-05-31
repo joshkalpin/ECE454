@@ -39,9 +39,22 @@ public class A1PasswordForwarder implements A1Password.Iface {
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         DiscoveryInfo backendInfo = client.getRequestNode();
         A1Password.Client backendClient = openClientConnection(backendInfo);
-        String hashedPassword = backendClient.hashPassword(password, logRounds);
-        openConnections.get(backendInfo).close();
-        return hashedPassword;
+        boolean passwordSet = false;
+        String hashedPassword = "";
+        // try until it works
+        while(true) {
+            try {
+                hashedPassword = backendClient.hashPassword(password, logRounds);
+                openConnections.get(backendInfo).close();
+                passwordSet = true;
+            } catch (Exception e) {
+                logger.warn("Unable to connect to node: " + backendInfo.toString());
+                client.reportNode(backendInfo, System.currentTimeMillis());
+            }
+            if (passwordSet) {
+                return hashedPassword;
+            }
+        }
     }
 
     @Override

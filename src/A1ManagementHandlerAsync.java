@@ -42,4 +42,14 @@ public class A1ManagementHandlerAsync implements A1Management.AsyncIface {
     public void getRequestNode(AsyncMethodCallback resultHandler) throws TException {
 
     }
+
+    @Override
+    public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp, AsyncMethodCallback resultHandler) throws TException {
+
+    }
+
+    @Override
+    public void reportNode(DiscoveryInfo backendNode, long timestamp, AsyncMethodCallback resultHandler) throws TException {
+
+    }
 }
