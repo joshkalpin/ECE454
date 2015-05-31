@@ -37,11 +37,11 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
-        DiscoveryInfo backendInfo = client.getRequestNode();
         boolean passwordSet = false;
         String hashedPassword = "";
         // try until it works
         while(true) {
+            DiscoveryInfo backendInfo = client.getRequestNode();
             A1Password.Client backendClient = openClientConnection(backendInfo);
             try {
                 hashedPassword = backendClient.hashPassword(password, logRounds);
