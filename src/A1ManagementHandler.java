@@ -38,11 +38,6 @@ public class A1ManagementHandler implements A1Management.Iface {
     }
 
     @Override
-    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException {
-        throw new InvalidNodeException();
-    }
-
-    @Override
     public DiscoveryInfo getRequestNode() throws TException {
         throw new InvalidNodeException();
     }

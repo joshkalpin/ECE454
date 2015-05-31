@@ -116,15 +116,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException, InvalidNodeException {
-        if (isSeed) {
-            return backEndNodes;
-        }
-
-        throw new InvalidNodeException("This is not a seed node", seeds);
-    }
-
-    @Override
     public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp) throws TException, InvalidNodeException {
         if (timestamp <= lastUpdated) {
             return;
