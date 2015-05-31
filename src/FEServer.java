@@ -56,7 +56,7 @@ public class FEServer extends Server {
 
             A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
             TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementServerSocket);
-            final TServer server = new TThreadPoolServer(managementArgs.processor(managementProcessor));
+            final TServer managementServer = new TThreadPoolServer(managementArgs.processor(managementProcessor));
 
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 
@@ -81,7 +81,7 @@ public class FEServer extends Server {
             logger.info("Starting password forwarder.");
             new Thread(passwordService).start();
             logger.info("Starting management server.");
-            server.serve();
+            managementServer.serve();
 
         }
         catch (Exception e) {
