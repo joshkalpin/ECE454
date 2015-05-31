@@ -16,13 +16,13 @@ import java.util.Random;
 import java.util.TimerTask;
 import java.util.Timer;
 import java.util.Vector;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class A1ManagementForwarder implements A1Management.Iface {
 
     private List<DiscoveryInfo> seeds;
     private List<DiscoveryInfo> frontEndNodes;
     private List<DiscoveryInfo> backEndNodes;
-    private Random rng;
     private boolean isSeed = false;
     private Logger logger;
 
@@ -47,7 +47,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         this.seeds = seeds;
         backEndNodes = new Vector<DiscoveryInfo>();
         frontEndNodes = new Vector<DiscoveryInfo>();
-        rng = new Random(System.currentTimeMillis());
+        ThreadLocalRandom.current().setSeed(System.currentTimeMillis());
         logger = LoggerFactory.getLogger(FEServer.class);
         lastUpdated = 0L;
 
@@ -151,7 +151,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     @Override
     public DiscoveryInfo getRequestNode() throws TException {
         if (isSeed) {
-            return backEndNodes.get(rng.nextInt(backEndNodes.size()));
+            return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
         }
 
         if (backEndNodes.isEmpty()) {
@@ -165,7 +165,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             }).start();
         }
 
-        return backEndNodes.get(rng.nextInt(backEndNodes.size()));
+        return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
     }
 
     private synchronized void updateBackendNodes() {
@@ -193,7 +193,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
     private synchronized void gossip() {
         if (!seeds.isEmpty() && !isSeed) {
-            DiscoveryInfo seed = seeds.get(rng.nextInt(seeds.size()));
+            DiscoveryInfo seed = seeds.get(ThreadLocalRandom.current().nextInt(seeds.size()));
             try {
                 TTransport seedTransport = new TSocket(seed.getHost(), seed.getMport());
                 seedTransport.open();
@@ -208,7 +208,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             }
         }
         if (!frontEndNodes.isEmpty()) {
-            DiscoveryInfo friend = frontEndNodes.get(rng.nextInt(frontEndNodes.size()));
+            DiscoveryInfo friend = frontEndNodes.get(ThreadLocalRandom.current().nextInt(frontEndNodes.size()));
             try {
                 TTransport friendTransport = new TSocket(friend.getHost(), friend.getMport());
                 friendTransport.open();
