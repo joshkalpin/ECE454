@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class A1PasswordForwarder implements A1Password.Iface {
@@ -23,7 +24,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     public A1PasswordForwarder(DiscoveryInfo self) {
         logger = LoggerFactory.getLogger(FEServer.class);
-        openConnections = new HashMap<DiscoveryInfo, TTransport>();
+        openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
         try {
             logger.info("Opening connection with management node " + self.getHost() + ":" + self.getMport());
             TTransport transport = new TSocket(self.getHost(), self.getMport());

@@ -16,8 +16,10 @@ struct DiscoveryInfo {
     2: i32 mport,
     // password port
     3: i32 pport,
+    // number of cores
+    4: i32 ncores,
     // the type of server
-    4: bool isBEServer
+    5: bool isBEServer
 }
 
 exception InvalidNodeException {

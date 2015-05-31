@@ -23,7 +23,7 @@ public class FEServer extends Server {
 
     public FEServer(String[] args) {
         super(args);
-        self = new DiscoveryInfo(getHost(), getMPort(), getPPort(), false);
+        self = new DiscoveryInfo(getHost(), getMPort(), getPPort(), getNCores(), false);
         logger = LoggerFactory.getLogger(FEServer.class);
         logger.info("Node created...");
     }

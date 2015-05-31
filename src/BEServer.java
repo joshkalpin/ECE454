@@ -26,7 +26,7 @@ public class BEServer extends Server {
 
     public BEServer(String[] args) {
         super(args);
-        info = new DiscoveryInfo(this.getHost(), this.getMPort(), this.getPPort(), true);
+        info = new DiscoveryInfo(this.getHost(), this.getMPort(), this.getPPort(), getNCores(), true);
         logger = LoggerFactory.getLogger(BEServer.class);
         logger.info("Node created...");
     }

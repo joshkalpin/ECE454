@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.TimerTask;
 import java.util.Timer;
+import java.util.Vector;
 
 public class A1ManagementForwarder implements A1Management.Iface {
 
@@ -44,8 +45,8 @@ public class A1ManagementForwarder implements A1Management.Iface {
     public A1ManagementForwarder(List<DiscoveryInfo> seeds) {
         super();
         this.seeds = seeds;
-        backEndNodes = new ArrayList<DiscoveryInfo>();
-        frontEndNodes = new ArrayList<DiscoveryInfo>();
+        backEndNodes = new Vector<DiscoveryInfo>();
+        frontEndNodes = new Vector<DiscoveryInfo>();
         rng = new Random(System.currentTimeMillis());
         logger = LoggerFactory.getLogger(FEServer.class);
         lastUpdated = 0L;
@@ -57,7 +58,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     public A1ManagementForwarder(List<DiscoveryInfo> seeds, DiscoveryInfo self) {
         this(seeds);
         logger.info("Creating seed node");
-        frontEndNodes.remove(self);
+        this.seeds.remove(self);
         isSeed = true;
     }
 
@@ -121,7 +122,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         lastUpdated = timestamp;
 
         if (!isSeed) {
-            List<DiscoveryInfo> seedCopy = new ArrayList<DiscoveryInfo>(seeds);
+            List<DiscoveryInfo> seedCopy = new Vector<DiscoveryInfo>(seeds);
             for (DiscoveryInfo seed : seeds) {
                 try {
                     TTransport transport = new TSocket(seed.getHost(), seed.getMport());
@@ -167,7 +168,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         return backEndNodes.get(rng.nextInt(backEndNodes.size()));
     }
 
-    private void updateBackendNodes() {
+    private synchronized void updateBackendNodes() {
         for (DiscoveryInfo seed : seeds) {
             try {
                 logger.info("Updating backend nodes from seed " + seed.getHost() + ":" + seed.getMport());
@@ -190,7 +191,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         logger.error("Failed to update backend nodes from seeds");
     }
 
-    private void gossip() {
+    private synchronized void gossip() {
         if (!seeds.isEmpty() && !isSeed) {
             DiscoveryInfo seed = seeds.get(rng.nextInt(seeds.size()));
             try {

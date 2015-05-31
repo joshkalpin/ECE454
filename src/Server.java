@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public abstract class Server {
     /**
@@ -57,7 +58,7 @@ public abstract class Server {
     }
 
     private void createSeeds(String[] rawSeeds) {
-        seeds = new ArrayList<DiscoveryInfo>();
+        seeds = new Vector<DiscoveryInfo>();
         for (String seed : rawSeeds) {
             String[] parts = seed.split(":");
             String hostname = parts[0];

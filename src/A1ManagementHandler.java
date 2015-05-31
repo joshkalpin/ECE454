@@ -57,11 +57,11 @@ public class A1ManagementHandler implements A1Management.Iface {
         throw new InvalidNodeException();
     }
 
-    public void receiveRequest() {
+    public synchronized void receiveRequest() {
         ++numReceived;
     }
 
-    public void completeRequest() {
+    public synchronized void completeRequest() {
         ++numCompleted;
     }
 }
