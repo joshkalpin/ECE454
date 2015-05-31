@@ -119,7 +119,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
         lastUpdated = timestamp;
         if (!isSeed) {
-            List<DiscoveryInfo> seedCopy = (ArrayList<DiscoveryInfo>)seeds).clone();
+            List<DiscoveryInfo> seedCopy = new ArrayList<DiscoveryInfo>(seeds);
             for (DiscoveryInfo seed : seeds) {
                 try {
                     TTransport transport = new TSocket(seed.getHost(), seed.getMport());
