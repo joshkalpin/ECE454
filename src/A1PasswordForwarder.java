@@ -7,6 +7,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,52 +38,54 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
-        boolean passwordSet = false;
-        String hashedPassword = "";
         // try until it works
         while(true) {
             DiscoveryInfo backendInfo = client.getRequestNode();
-            A1Password.Client backendClient = openClientConnection(backendInfo);
+
+            if (backendInfo == null) {
+                throw new ServiceUnavailableException();
+            }
+
             try {
-                hashedPassword = backendClient.hashPassword(password, logRounds);
-                openConnections.get(backendInfo).close();
-                passwordSet = true;
+                A1Password.Client backendClient = openClientConnection(backendInfo);
+                String hashedPassword = backendClient.hashPassword(password, logRounds);
+                openConnections.remove(backendInfo).close();
+                return hashedPassword;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
                 client.reportNode(backendInfo, System.currentTimeMillis());
-            }
-            if (passwordSet) {
-                return hashedPassword;
-            }
-            if (backendClient == null) {
-                return null;
             }
         }
     }
 
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
-        DiscoveryInfo backendInfo = client.getRequestNode();
-        A1Password.Client backendClient = openClientConnection(backendInfo);
-        boolean result = backendClient.checkPassword(password, hash);
-        openConnections.get(backendInfo).close();
-        return result;
+        while(true) {
+            DiscoveryInfo backendInfo = client.getRequestNode();
+
+            if (backendInfo == null) {
+                throw new ServiceUnavailableException();
+            }
+
+            try {
+                A1Password.Client backendClient = openClientConnection(backendInfo);
+                boolean result = backendClient.checkPassword(password, hash);
+                openConnections.remove(backendInfo).close();
+                return result;
+            } catch (Exception e) {
+                logger.warn("Unable to connect to node: " + backendInfo.toString());
+                client.reportNode(backendInfo, System.currentTimeMillis());
+            }
+        }
     }
 
-    private A1Password.Client openClientConnection(DiscoveryInfo info) {
-        try {
-            logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
-            TTransport transport = new TSocket(info.getHost(), info.getPport());
-            transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
-            A1Password.Client backendClient = new A1Password.Client(protocol);
-            openConnections.put(info, transport);
-            return backendClient;
-        } catch (Exception e) {
-            logger.warn("Failed to connect to management node " + info.getHost() + ":" + info.getPport());
-            e.printStackTrace();
-        }
-
-        return null;
+    private A1Password.Client openClientConnection(DiscoveryInfo info) throws TTransportException {
+        logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
+        TTransport transport = new TSocket(info.getHost(), info.getPport());
+        transport.open();
+        TProtocol protocol = new TBinaryProtocol(transport);
+        A1Password.Client backendClient = new A1Password.Client(protocol);
+        openConnections.put(info, transport);
+        return backendClient;
     }
 }

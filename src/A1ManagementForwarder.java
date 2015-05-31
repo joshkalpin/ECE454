@@ -117,7 +117,9 @@ public class A1ManagementForwarder implements A1Management.Iface {
         if (timestamp <= lastUpdated) {
             return;
         }
+
         lastUpdated = timestamp;
+
         if (!isSeed) {
             List<DiscoveryInfo> seedCopy = new ArrayList<DiscoveryInfo>(seeds);
             for (DiscoveryInfo seed : seeds) {
@@ -133,12 +135,14 @@ public class A1ManagementForwarder implements A1Management.Iface {
                     logger.warn("Unable to inform seed node " + seed.toString() + " of bad BE node. Seed node may be down.");
                     logger.info("Removing seed node from list of available nodes.");
                 }
+
                 if (seedCopy.isEmpty()) {
                     logger.error("List of available seed nodes is empty. System may not work as expected");
                 }
             }
             seeds = seedCopy;
         }
+
         backEndNodes.remove(backend);
     }
 
