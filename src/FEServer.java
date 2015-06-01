@@ -61,7 +61,7 @@ public class FEServer extends Server {
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 
             TServerTransport passwordServerSocket = new TServerSocket(this.getPPort());
-            A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(self);
+            A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(managementForwarder);
             A1Password.Processor passwordProcessor = new A1Password.Processor(passwordForwarder);
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordServerSocket);
             final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));

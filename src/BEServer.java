@@ -34,24 +34,9 @@ public class BEServer extends Server {
     @Override
     protected void start() {
         try {
-            TServerTransport passwordTransport = new TServerSocket(this.getPPort());
-            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler());
-            TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
-            final TServer passwordServer =
-                new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
-            logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
-
-            Runnable passwordHandler = new Runnable() {
-                public void run() {
-                    passwordServer.serve();
-                }
-            };
-
-            logger.info("Attempting to start password service...");
-            new Thread(passwordHandler).start();
-
             TServerTransport managementTransport = new TServerSocket(this.getMPort());
-            A1Management.Processor managementProcessor = new A1Management.Processor(new A1ManagementHandler());
+            A1ManagementHandler managementHandler = new A1ManagementHandler();
+            A1Management.Processor managementProcessor = new A1Management.Processor(managementHandler);
             TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
             final TServer managementServer =
                 new TThreadPoolServer(managementArgs.processor(managementProcessor));
@@ -65,8 +50,23 @@ public class BEServer extends Server {
                 register(seed.getHost(), seed.getMport(), logger, getInfo());
             }
 
-            managementServer.serve();
+            TServerTransport passwordTransport = new TServerSocket(this.getPPort());
+            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler));
+            TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
+            final TServer passwordServer =
+                    new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
+            logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
+            Runnable passwordHandler = new Runnable() {
+                public void run() {
+                    passwordServer.serve();
+                }
+            };
+
+            logger.info("Attempting to start password service...");
+            new Thread(passwordHandler).start();
+
+            managementServer.serve();
 
         }
         catch (Exception e) {

@@ -7,6 +7,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class A1PasswordHandler implements A1Password.Iface {
 
+    private A1ManagementHandler handler;
+
+    public A1PasswordHandler(A1ManagementHandler handler) {
+        this.handler = handler;
+    }
+
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         return BCrypt.hashpw(password, BCrypt.gensalt(logRounds));

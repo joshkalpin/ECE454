@@ -17,30 +17,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class A1PasswordForwarder implements A1Password.Iface {
 
-    private A1Management.Client client;
+    private A1ManagementForwarder forwarder;
     private Logger logger;
     private Map<DiscoveryInfo, TTransport> openConnections;
 
-    public A1PasswordForwarder(DiscoveryInfo self) {
+    public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
         openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
-        try {
-            logger.info("Opening connection with management node " + self.getHost() + ":" + self.getMport());
-            TTransport transport = new TSocket(self.getHost(), self.getMport());
-            transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
-            client = new A1Management.Client(protocol);
-        } catch (Exception e) {
-            logger.warn("Failed to connect to management node " + self.getHost() + ":" + self.getMport());
-            e.printStackTrace();
-        }
+        this.forwarder = forwarder;
     }
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         // try until it works
         while(true) {
-            DiscoveryInfo backendInfo = client.getRequestNode();
+            DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
                 throw new ServiceUnavailableException();
@@ -53,7 +44,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 return hashedPassword;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
-                client.reportNode(backendInfo, System.currentTimeMillis());
+                forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
         }
     }
@@ -61,7 +52,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
         while(true) {
-            DiscoveryInfo backendInfo = client.getRequestNode();
+            DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
                 throw new ServiceUnavailableException();
@@ -74,7 +65,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 return result;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
-                client.reportNode(backendInfo, System.currentTimeMillis());
+                forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
         }
     }
