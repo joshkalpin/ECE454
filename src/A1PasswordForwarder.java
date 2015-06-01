@@ -20,6 +20,9 @@ public class A1PasswordForwarder implements A1Password.Iface {
     private Logger logger;
     private Map<DiscoveryInfo, TTransport> openConnections;
 
+    private static final int RETRY_COUNT = 100;
+    private static final int SLEEP_TIME = 100;
+
     public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
         openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
@@ -29,7 +32,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
-        int retryCount = 100;
+        int retryCount = RETRY_COUNT;
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
@@ -40,7 +43,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
                 try {
                     logger.warn("Sleeping for 100ms, have no backend nodes");
-                    Thread.sleep(100);
+                    Thread.sleep(SLEEP_TIME);
                     retryCount--;
                 } catch (InterruptedException e) {
                     logger.warn("Sleep interrupted");
@@ -64,7 +67,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
-        int retryCount = 100;
+        int retryCount = RETRY_COUNT;
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
@@ -75,7 +78,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
                 try {
                     logger.warn("Sleeping for 100ms, have no backend nodes");
-                    Thread.sleep(100);
+                    Thread.sleep(SLEEP_TIME);
                     retryCount--;
                 } catch (InterruptedException e) {
                     logger.warn("Sleep interrupted");
