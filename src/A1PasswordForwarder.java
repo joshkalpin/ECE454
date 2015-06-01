@@ -1,4 +1,3 @@
-import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import ece454750s15a1.ServiceUnavailableException;
@@ -11,70 +10,91 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class A1PasswordForwarder implements A1Password.Iface {
 
-    private A1Management.Client client;
+    private A1ManagementForwarder forwarder;
     private Logger logger;
     private Map<DiscoveryInfo, TTransport> openConnections;
 
-    public A1PasswordForwarder(DiscoveryInfo self) {
+    private static final int RETRY_COUNT = 100;
+    private static final int SLEEP_TIME = 100;
+
+    public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
-        openConnections = new HashMap<DiscoveryInfo, TTransport>();
-        try {
-            logger.info("Opening connection with management node " + self.getHost() + ":" + self.getMport());
-            TTransport transport = new TSocket(self.getHost(), self.getMport());
-            transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
-            client = new A1Management.Client(protocol);
-        } catch (Exception e) {
-            logger.warn("Failed to connect to management node " + self.getHost() + ":" + self.getMport());
-            e.printStackTrace();
-        }
+        openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
+        this.forwarder = forwarder;
     }
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
-        // try until it works
+        forwarder.receiveRequest();
+        int retryCount = RETRY_COUNT;
         while(true) {
-            DiscoveryInfo backendInfo = client.getRequestNode();
+            DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
-                throw new ServiceUnavailableException();
+                if (retryCount == 0) {
+                    throw new ServiceUnavailableException();
+                }
+
+                try {
+                    logger.warn("Sleeping for 100ms, have no backend nodes");
+                    Thread.sleep(SLEEP_TIME);
+                    retryCount--;
+                } catch (InterruptedException e) {
+                    logger.warn("Sleep interrupted");
+                }
+                continue;
             }
 
             try {
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 String hashedPassword = backendClient.hashPassword(password, logRounds);
                 openConnections.remove(backendInfo).close();
+                forwarder.completeRequest();
                 return hashedPassword;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
-                client.reportNode(backendInfo, System.currentTimeMillis());
+                forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
         }
     }
 
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
+        forwarder.receiveRequest();
+        int retryCount = RETRY_COUNT;
         while(true) {
-            DiscoveryInfo backendInfo = client.getRequestNode();
+            DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
-                throw new ServiceUnavailableException();
+                if (retryCount == 0) {
+                    throw new ServiceUnavailableException();
+                }
+
+                try {
+                    logger.warn("Sleeping for 100ms, have no backend nodes");
+                    Thread.sleep(SLEEP_TIME);
+                    retryCount--;
+                } catch (InterruptedException e) {
+                    logger.warn("Sleep interrupted");
+                }
+                continue;
             }
 
             try {
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 boolean result = backendClient.checkPassword(password, hash);
                 openConnections.remove(backendInfo).close();
+                forwarder.completeRequest();
                 return result;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
-                client.reportNode(backendInfo, System.currentTimeMillis());
+                forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
         }
     }

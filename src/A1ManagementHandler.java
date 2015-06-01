@@ -5,6 +5,7 @@ import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // generated thrift code
@@ -26,19 +27,11 @@ public class A1ManagementHandler implements A1Management.Iface {
 
     @Override
     public List<String> getGroupMembers() throws TException {
-        List<String> members = new ArrayList<String>();
-        members.add("jzanutto");
-        members.add("jkalpin");
-        return members;
+        return Arrays.asList("jzanutto", "jkalpin");
     }
 
     @Override
     public boolean registerNode(DiscoveryInfo discoveryInfo) throws TException {
-        throw new InvalidNodeException();
-    }
-
-    @Override
-    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException {
         throw new InvalidNodeException();
     }
 
@@ -57,11 +50,11 @@ public class A1ManagementHandler implements A1Management.Iface {
         throw new InvalidNodeException();
     }
 
-    public void receiveRequest() {
+    public synchronized void receiveRequest() {
         ++numReceived;
     }
 
-    public void completeRequest() {
+    public synchronized void completeRequest() {
         ++numCompleted;
     }
 }

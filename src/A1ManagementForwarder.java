@@ -2,75 +2,98 @@ import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
 import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.PerfCounters;
+import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.TimerTask;
+import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class A1ManagementForwarder implements A1Management.Iface {
 
     private List<DiscoveryInfo> seeds;
     private List<DiscoveryInfo> frontEndNodes;
     private List<DiscoveryInfo> backEndNodes;
-    private Random rng;
+    private Map<DiscoveryInfo, TTransport> openConnections;
     private boolean isSeed = false;
     private Logger logger;
-
     private long lastUpdated;
+    private long backendNodeWeight;
+    private int numReceived = 0;
+    private int numCompleted = 0;
+    private long birthTime = 0;
+
     private static final long GOSSIP_FREQUENCY_MILLIS = 100L;
     private static final long GOSSIP_DELAY_MILLIS = 2000L;
-    private TimerTask gossip = new Gossiper();
-    private Timer gossipSchedule;
 
     private class Gossiper extends TimerTask {
         @Override
         public void run() {
             // sanity check
-            if (A1ManagementForwarder.this != null) {
-                A1ManagementForwarder.this.gossip();
-            }
+            A1ManagementForwarder.this.gossip();
         }
     }
 
     public A1ManagementForwarder(List<DiscoveryInfo> seeds) {
         super();
         this.seeds = seeds;
-        backEndNodes = new ArrayList<DiscoveryInfo>();
-        frontEndNodes = new ArrayList<DiscoveryInfo>();
-        rng = new Random(System.currentTimeMillis());
+        backEndNodes = new Vector<DiscoveryInfo>();
+        frontEndNodes = new Vector<DiscoveryInfo>();
         logger = LoggerFactory.getLogger(FEServer.class);
         lastUpdated = 0L;
 
-        gossipSchedule = new Timer(true);
+        Timer gossipSchedule = new Timer(true);
+        TimerTask gossip = new Gossiper();
         gossipSchedule.scheduleAtFixedRate(gossip, GOSSIP_DELAY_MILLIS, GOSSIP_FREQUENCY_MILLIS);
+
+        openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
+        backendNodeWeight = 0l;
+        birthTime = System.currentTimeMillis();
     }
 
     public A1ManagementForwarder(List<DiscoveryInfo> seeds, DiscoveryInfo self) {
         this(seeds);
         logger.info("Creating seed node");
-        frontEndNodes.remove(self);
+        this.seeds.remove(self);
         isSeed = true;
     }
 
-    // TODO: fix me
     @Override
     public PerfCounters getPerfCounters() throws TException {
-        return null;
+        return new PerfCounters((int)System.currentTimeMillis() - (int)birthTime, numReceived, numCompleted);
+
     }
 
-    // TODO: fix me
     @Override
     public List<String> getGroupMembers() throws TException {
-        return null;
+        while(true) {
+            DiscoveryInfo backendInfo = this.getRequestNode();
+
+            if (backendInfo == null) {
+                throw new ServiceUnavailableException();
+            }
+
+            try {
+                A1Management.Client backendClient = openClientConnection(backendInfo);
+                List<String> members = backendClient.getGroupMembers();
+                openConnections.remove(backendInfo).close();
+                return members;
+            } catch (Exception e) {
+                logger.warn("Unable to connect to node: " + backendInfo.toString());
+                this.reportNode(backendInfo, System.currentTimeMillis());
+            }
+        }
     }
 
     @Override
@@ -92,15 +115,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public List<DiscoveryInfo> getUpdatedBackendNodeList() throws TException, InvalidNodeException {
-        if (isSeed) {
-            return backEndNodes;
-        }
-
-        throw new InvalidNodeException("This is not a seed node", seeds);
-    }
-
-    @Override
     public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp) throws TException, InvalidNodeException {
         if (timestamp <= lastUpdated) {
             return;
@@ -110,6 +124,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         logger.info("" + lastUpdated + " - Received new information about system. Updating cluster state knowledge.");
         this.frontEndNodes = frontend;
         this.backEndNodes = backend;
+        updateWeight();
     }
 
     @Override
@@ -121,7 +136,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         lastUpdated = timestamp;
 
         if (!isSeed) {
-            List<DiscoveryInfo> seedCopy = new ArrayList<DiscoveryInfo>(seeds);
+            List<DiscoveryInfo> seedCopy = new Vector<DiscoveryInfo>(seeds);
             for (DiscoveryInfo seed : seeds) {
                 try {
                     TTransport transport = new TSocket(seed.getHost(), seed.getMport());
@@ -144,55 +159,29 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
 
         backEndNodes.remove(backend);
+        subtractWeight(backend.getNcores());
     }
 
-    // TODO: core based load balancing strategy
     @Override
     public DiscoveryInfo getRequestNode() throws TException {
-        if (isSeed) {
-            return backEndNodes.get(rng.nextInt(backEndNodes.size()));
-        }
-
         if (backEndNodes.isEmpty()) {
-            updateBackendNodes();
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    updateBackendNodes();
-                }
-            }).start();
+            return null;
         }
 
-        return backEndNodes.get(rng.nextInt(backEndNodes.size()));
-    }
-
-    private void updateBackendNodes() {
-        for (DiscoveryInfo seed : seeds) {
-            try {
-                logger.info("Updating backend nodes from seed " + seed.getHost() + ":" + seed.getMport());
-                TTransport transport = new TSocket(seed.getHost(), seed.getMport());
-                transport.open();
-                TProtocol protocol = new TBinaryProtocol(transport);
-                A1Management.Client client = new A1Management.Client(protocol);
-                // set timeout to 10 seconds
-                // transport.setTimeout(DISCOVERY_TIMEOUT);
-
-                this.backEndNodes = client.getUpdatedBackendNodeList();
-                transport.close();
-                return;
-            } catch (Exception e) {
-                logger.warn("Failed to register with " + seed.getHost() + ":" + seed.getMport());
-                e.printStackTrace();
+        long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
+        for (DiscoveryInfo backEndNode : backEndNodes) {
+            random -= backEndNode.getNcores();
+            if (random <= 0) {
+                return backEndNode;
             }
         }
 
-        logger.error("Failed to update backend nodes from seeds");
+        return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
     }
 
     private void gossip() {
         if (!seeds.isEmpty() && !isSeed) {
-            DiscoveryInfo seed = seeds.get(rng.nextInt(seeds.size()));
+            DiscoveryInfo seed = seeds.get(ThreadLocalRandom.current().nextInt(seeds.size()));
             try {
                 TTransport seedTransport = new TSocket(seed.getHost(), seed.getMport());
                 seedTransport.open();
@@ -207,7 +196,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             }
         }
         if (!frontEndNodes.isEmpty()) {
-            DiscoveryInfo friend = frontEndNodes.get(rng.nextInt(frontEndNodes.size()));
+            DiscoveryInfo friend = frontEndNodes.get(ThreadLocalRandom.current().nextInt(frontEndNodes.size()));
             try {
                 TTransport friendTransport = new TSocket(friend.getHost(), friend.getMport());
                 friendTransport.open();
@@ -221,5 +210,35 @@ public class A1ManagementForwarder implements A1Management.Iface {
                 e.printStackTrace();
             }
         }
+    }
+
+    private synchronized A1Management.Client openClientConnection(DiscoveryInfo info) throws TTransportException {
+        logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
+        TTransport transport = new TSocket(info.getHost(), info.getMport());
+        transport.open();
+        TProtocol protocol = new TBinaryProtocol(transport);
+        A1Management.Client backendClient = new A1Management.Client(protocol);
+        openConnections.put(info, transport);
+        return backendClient;
+    }
+
+    private synchronized void updateWeight() {
+        backendNodeWeight = 0L;
+
+        for (DiscoveryInfo info : this.backEndNodes) {
+            backendNodeWeight += info.getNcores();
+        }
+    }
+
+    private synchronized void subtractWeight(int weight) {
+        backendNodeWeight -= weight;
+    }
+
+    public synchronized void receiveRequest() {
+        ++numReceived;
+    }
+
+    public synchronized void completeRequest() {
+        ++numCompleted;
     }
 }

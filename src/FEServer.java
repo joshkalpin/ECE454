@@ -1,5 +1,5 @@
-import ece454750s15a1.A1Password;
 import ece454750s15a1.A1Management;
+import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class FEServer extends Server {
 
@@ -23,7 +27,7 @@ public class FEServer extends Server {
 
     public FEServer(String[] args) {
         super(args);
-        self = new DiscoveryInfo(getHost(), getMPort(), getPPort(), false);
+        self = new DiscoveryInfo(getHost(), getMPort(), getPPort(), getNCores(), false);
         logger = LoggerFactory.getLogger(FEServer.class);
         logger.info("Node created...");
     }
@@ -61,15 +65,21 @@ public class FEServer extends Server {
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 
             TServerTransport passwordServerSocket = new TServerSocket(this.getPPort());
-            A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(self);
+            A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(managementForwarder);
             A1Password.Processor passwordProcessor = new A1Password.Processor(passwordForwarder);
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordServerSocket);
             final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
-
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
             if (!isSeed) {
-                for (DiscoveryInfo seed : seeds) {
-                    logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
-                    register(seed.getHost(), seed.getMport(), logger, self);
+                for (final DiscoveryInfo seed : seeds) {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
+                            register(seed.getHost(), seed.getMport(), logger, self);
+                        }
+                    };
+                    executor.submit(runnable);
                 }
             }
 
@@ -79,7 +89,7 @@ public class FEServer extends Server {
                 }
             };
             logger.info("Starting password forwarder.");
-            new Thread(passwordService).start();
+            executor.submit(passwordService);
             logger.info("Starting management server.");
             managementServer.serve();
 

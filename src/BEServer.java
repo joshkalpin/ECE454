@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BEServer extends Server {
 
@@ -26,7 +28,7 @@ public class BEServer extends Server {
 
     public BEServer(String[] args) {
         super(args);
-        info = new DiscoveryInfo(this.getHost(), this.getMPort(), this.getPPort(), true);
+        info = new DiscoveryInfo(this.getHost(), this.getMPort(), this.getPPort(), getNCores(), true);
         logger = LoggerFactory.getLogger(BEServer.class);
         logger.info("Node created...");
     }
@@ -34,11 +36,22 @@ public class BEServer extends Server {
     @Override
     protected void start() {
         try {
+            TServerTransport managementTransport = new TServerSocket(this.getMPort());
+            A1ManagementHandler managementHandler = new A1ManagementHandler();
+            A1Management.Processor managementProcessor = new A1Management.Processor(managementHandler);
+            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
+            final TServer managementServer =
+                new TThreadPoolServer(managementArgs.processor(managementProcessor));
+
+            logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
+
+            logger.info("Attempting to start management service...");
+
             TServerTransport passwordTransport = new TServerSocket(this.getPPort());
-            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler());
+            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler));
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
             final TServer passwordServer =
-                new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
+                    new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
             logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
             Runnable passwordHandler = new Runnable() {
@@ -48,26 +61,23 @@ public class BEServer extends Server {
             };
 
             logger.info("Attempting to start password service...");
-            new Thread(passwordHandler).start();
-
-            TServerTransport managementTransport = new TServerSocket(this.getMPort());
-            A1Management.Processor managementProcessor = new A1Management.Processor(new A1ManagementHandler());
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
-            final TServer managementServer =
-                new TThreadPoolServer(managementArgs.processor(managementProcessor));
-
-            logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
-
-            logger.info("Attempting to start management service...");
 
             List<DiscoveryInfo> seeds = getSeeds();
-            for (DiscoveryInfo seed : seeds) {
-                register(seed.getHost(), seed.getMport(), logger, getInfo());
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
+            executor.submit(passwordHandler);
+
+            for (final DiscoveryInfo seed : seeds) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        register(seed.getHost(), seed.getMport(), logger, getInfo());
+                    }
+                };
+
+                executor.submit(runnable);
             }
 
             managementServer.serve();
-
-
         }
         catch (Exception e) {
             e.printStackTrace();

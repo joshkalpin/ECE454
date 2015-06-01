@@ -6,8 +6,8 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public abstract class Server {
     /**
@@ -24,9 +24,7 @@ public abstract class Server {
     private int ncores;
     private List<DiscoveryInfo> seeds;
 
-
     protected static int DISCOVERY_TIMEOUT = 10000;
-
 
     public enum Options {
         HOST    { public String toString() { return "host"; } },
@@ -57,7 +55,7 @@ public abstract class Server {
     }
 
     private void createSeeds(String[] rawSeeds) {
-        seeds = new ArrayList<DiscoveryInfo>();
+        seeds = new Vector<DiscoveryInfo>();
         for (String seed : rawSeeds) {
             String[] parts = seed.split(":");
             String hostname = parts[0];

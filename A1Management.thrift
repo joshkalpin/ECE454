@@ -16,8 +16,10 @@ struct DiscoveryInfo {
     2: i32 mport,
     // password port
     3: i32 pport,
+    // number of cores
+    4: i32 ncores,
     // the type of server
-    4: bool isBEServer
+    5: bool isBEServer
 }
 
 exception InvalidNodeException {
@@ -30,7 +32,6 @@ service A1Management {
     list<string> getGroupMembers(),
     // TODO: additional interface content if necessary
     bool registerNode(1:DiscoveryInfo discoveryInfo) throws (1:InvalidNodeException e),
-    list<DiscoveryInfo> getUpdatedBackendNodeList() throws (1:InvalidNodeException e),
     DiscoveryInfo getRequestNode() throws (1:InvalidNodeException e),
     // used to share information about other nodes
     void inform(1:list<DiscoveryInfo> frontend, 2:list<DiscoveryInfo> backend, 3:i64 timestamp) throws (1:InvalidNodeException e)
