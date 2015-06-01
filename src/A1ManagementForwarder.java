@@ -51,7 +51,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
         this.seeds = seeds;
         backEndNodes = new Vector<DiscoveryInfo>();
         frontEndNodes = new Vector<DiscoveryInfo>();
-        ThreadLocalRandom.current().setSeed(System.currentTimeMillis());
         logger = LoggerFactory.getLogger(FEServer.class);
         lastUpdated = 0L;
 
