@@ -33,16 +33,12 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private long backendNodeWeight;
     private static final long GOSSIP_FREQUENCY_MILLIS = 100L;
     private static final long GOSSIP_DELAY_MILLIS = 2000L;
-    private TimerTask gossip = new Gossiper();
-    private Timer gossipSchedule;
 
     private class Gossiper extends TimerTask {
         @Override
         public void run() {
             // sanity check
-            if (A1ManagementForwarder.this != null) {
-                A1ManagementForwarder.this.gossip();
-            }
+            A1ManagementForwarder.this.gossip();
         }
     }
 
@@ -54,7 +50,8 @@ public class A1ManagementForwarder implements A1Management.Iface {
         logger = LoggerFactory.getLogger(FEServer.class);
         lastUpdated = 0L;
 
-        gossipSchedule = new Timer(true);
+        Timer gossipSchedule = new Timer(true);
+        TimerTask gossip = new Gossiper();
         gossipSchedule.scheduleAtFixedRate(gossip, GOSSIP_DELAY_MILLIS, GOSSIP_FREQUENCY_MILLIS);
 
         openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();

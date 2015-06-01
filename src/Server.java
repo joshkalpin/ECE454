@@ -24,9 +24,7 @@ public abstract class Server {
     private int ncores;
     private List<DiscoveryInfo> seeds;
 
-
     protected static int DISCOVERY_TIMEOUT = 10000;
-
 
     public enum Options {
         HOST    { public String toString() { return "host"; } },
