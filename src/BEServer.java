@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BEServer extends Server {
 
@@ -45,11 +47,6 @@ public class BEServer extends Server {
 
             logger.info("Attempting to start management service...");
 
-            List<DiscoveryInfo> seeds = getSeeds();
-            for (DiscoveryInfo seed : seeds) {
-                register(seed.getHost(), seed.getMport(), logger, getInfo());
-            }
-
             TServerTransport passwordTransport = new TServerSocket(this.getPPort());
             A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler));
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
@@ -64,10 +61,23 @@ public class BEServer extends Server {
             };
 
             logger.info("Attempting to start password service...");
-            new Thread(passwordHandler).start();
+
+            List<DiscoveryInfo> seeds = getSeeds();
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
+            executor.submit(passwordHandler);
+
+            for (final DiscoveryInfo seed : seeds) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        register(seed.getHost(), seed.getMport(), logger, getInfo());
+                    }
+                };
+
+                executor.submit(runnable);
+            }
 
             managementServer.serve();
-
         }
         catch (Exception e) {
             e.printStackTrace();
