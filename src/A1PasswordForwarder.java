@@ -32,7 +32,6 @@ public class A1PasswordForwarder implements A1Password.Iface {
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
         int retryCount = 100;
-        // try until it works
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
