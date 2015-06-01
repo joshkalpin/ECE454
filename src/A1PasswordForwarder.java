@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -30,12 +31,24 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
+        int retryCount = 100;
         // try until it works
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
-                throw new ServiceUnavailableException();
+                if (retryCount == 0) {
+                    throw new ServiceUnavailableException();
+                }
+
+                try {
+                    logger.warn("Sleeping for 100ms, have no backend nodes");
+                    Thread.sleep(100);
+                    retryCount--;
+                } catch (InterruptedException e) {
+                    logger.warn("Sleep interrupted");
+                }
+                continue;
             }
 
             try {
@@ -54,11 +67,23 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
+        int retryCount = 100;
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
             if (backendInfo == null) {
-                throw new ServiceUnavailableException();
+                if (retryCount == 0) {
+                    throw new ServiceUnavailableException();
+                }
+
+                try {
+                    logger.warn("Sleeping for 100ms, have no backend nodes");
+                    Thread.sleep(100);
+                    retryCount--;
+                } catch (InterruptedException e) {
+                    logger.warn("Sleep interrupted");
+                }
+                continue;
             }
 
             try {
