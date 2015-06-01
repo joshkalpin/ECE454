@@ -5,6 +5,7 @@ import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // generated thrift code
@@ -26,10 +27,7 @@ public class A1ManagementHandler implements A1Management.Iface {
 
     @Override
     public List<String> getGroupMembers() throws TException {
-        List<String> members = new ArrayList<String>();
-        members.add("jzanutto");
-        members.add("jkalpin");
-        return members;
+        return Arrays.asList("jzanutto", "jkalpin");
     }
 
     @Override
