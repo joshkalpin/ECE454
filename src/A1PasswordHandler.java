@@ -15,12 +15,18 @@ public class A1PasswordHandler implements A1Password.Iface {
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
-        return BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
+        handler.receiveRequest();
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
+        handler.completeRequest();
+        return hashedPassword;
     }
 
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
-        return BCrypt.checkpw(password, hash);
+        handler.receiveRequest();
+        boolean result = BCrypt.checkpw(password, hash);
+        handler.completeRequest();
+        return result;
     }
 
 }
