@@ -163,14 +163,13 @@ public class A1ManagementForwarder implements A1Management.Iface {
         subtractWeight(backend.getNcores());
     }
 
-    // TODO: core based load balancing strategy
     @Override
     public DiscoveryInfo getRequestNode() throws TException {
         if (backEndNodes.isEmpty()) {
             return null;
         }
 
-        double random = ThreadLocalRandom.current().nextDouble() * backendNodeWeight;
+        long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
         for (DiscoveryInfo backEndNode : backEndNodes) {
             random -= backEndNode.getNcores();
             if (random <= 0) {
@@ -181,7 +180,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
     }
 
-    private synchronized void gossip() {
+    private void gossip() {
         if (!seeds.isEmpty() && !isSeed) {
             DiscoveryInfo seed = seeds.get(ThreadLocalRandom.current().nextInt(seeds.size()));
             try {
