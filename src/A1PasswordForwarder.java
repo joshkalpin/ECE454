@@ -29,6 +29,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
+        forwarder.receiveRequest();
         // try until it works
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
@@ -41,6 +42,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 String hashedPassword = backendClient.hashPassword(password, logRounds);
                 openConnections.remove(backendInfo).close();
+                forwarder.completeRequest();
                 return hashedPassword;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
@@ -51,6 +53,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
+        forwarder.receiveRequest();
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
 
@@ -62,6 +65,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 boolean result = backendClient.checkPassword(password, hash);
                 openConnections.remove(backendInfo).close();
+                forwarder.completeRequest();
                 return result;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());

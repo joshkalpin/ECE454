@@ -28,9 +28,12 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private Map<DiscoveryInfo, TTransport> openConnections;
     private boolean isSeed = false;
     private Logger logger;
-
     private long lastUpdated;
     private long backendNodeWeight;
+    private int numReceived = 0;
+    private int numCompleted = 0;
+    private long birthTime = 0;
+
     private static final long GOSSIP_FREQUENCY_MILLIS = 100L;
     private static final long GOSSIP_DELAY_MILLIS = 2000L;
 
@@ -56,6 +59,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
         openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
         backendNodeWeight = 0l;
+        birthTime = System.currentTimeMillis();
     }
 
     public A1ManagementForwarder(List<DiscoveryInfo> seeds, DiscoveryInfo self) {
@@ -65,13 +69,12 @@ public class A1ManagementForwarder implements A1Management.Iface {
         isSeed = true;
     }
 
-    // TODO: fix me
     @Override
     public PerfCounters getPerfCounters() throws TException {
-        return null;
+        return new PerfCounters((int)System.currentTimeMillis() - (int)birthTime, numReceived, numCompleted);
+
     }
 
-    // TODO: fix me
     @Override
     public List<String> getGroupMembers() throws TException {
         while(true) {
@@ -229,5 +232,13 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
     private synchronized void subtractWeight(int weight) {
         backendNodeWeight -= weight;
+    }
+
+    public synchronized void receiveRequest() {
+        ++numReceived;
+    }
+
+    public synchronized void completeRequest() {
+        ++numCompleted;
     }
 }
