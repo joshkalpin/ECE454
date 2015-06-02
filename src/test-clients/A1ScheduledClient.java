@@ -98,7 +98,7 @@ public class A1ScheduledClient {
                 transport.open();
                 TProtocol protocol = new TBinaryProtocol(transport);
                 A1Password.Client cl = new A1Password.Client(protocol);
-                short rounds = (short)(10 + rng.nextInt(21));
+                short rounds = (short)(10 + rng.nextInt(6));
                 System.out.println("password is: " + passwd);
                 System.out.println("hashing rounds: " + rounds);
                 String hash = cl.hashPassword(passwd, rounds);
