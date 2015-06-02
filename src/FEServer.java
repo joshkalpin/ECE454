@@ -75,7 +75,6 @@ public class FEServer extends Server {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
                             register(seed.getHost(), seed.getMport(), logger, self);
                         }
                     };

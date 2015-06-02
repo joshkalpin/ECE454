@@ -20,8 +20,8 @@ public class A1PasswordForwarder implements A1Password.Iface {
     private Logger logger;
     private Map<DiscoveryInfo, TTransport> openConnections;
 
-    private static final int RETRY_COUNT = 100;
-    private static final int SLEEP_TIME = 100;
+    private static final int RETRY_COUNT = 10;
+    private static final int SLEEP_TIME = 1000;
 
     public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
@@ -52,6 +52,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
             }
 
             try {
+                logger.info("Attempting to connect to client: " + backendInfo + " for hashing.");
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 String hashedPassword = backendClient.hashPassword(password, logRounds);
                 openConnections.remove(backendInfo).close();
@@ -87,6 +88,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
             }
 
             try {
+                logger.info("Attempting to connect to client: " + backendInfo + " for verifying.");
                 A1Password.Client backendClient = openClientConnection(backendInfo);
                 boolean result = backendClient.checkPassword(password, hash);
                 openConnections.remove(backendInfo).close();

@@ -58,7 +58,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         gossipSchedule.scheduleAtFixedRate(gossip, GOSSIP_DELAY_MILLIS, GOSSIP_FREQUENCY_MILLIS);
 
         openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
-        backendNodeWeight = 0l;
+        backendNodeWeight = 0L;
         birthTime = System.currentTimeMillis();
     }
 
@@ -124,7 +124,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         logger.info("" + lastUpdated + " - Received new information about system. Updating cluster state knowledge.");
         this.frontEndNodes = frontend;
         this.backEndNodes = backend;
-        updateWeight();
+        backendNodeWeight = getWeight(this.backEndNodes, logger);
     }
 
     @Override
@@ -159,13 +159,20 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
 
         backEndNodes.remove(backend);
-        subtractWeight(backend.getNcores());
+        // subtractWeight(backend.getNcores());
     }
 
     @Override
     public DiscoveryInfo getRequestNode() throws TException {
         if (backEndNodes.isEmpty()) {
             return null;
+        }
+        backendNodeWeight = getWeight(backEndNodes, logger);
+
+        if (backendNodeWeight == 0) {
+            logger.error("Backend node weight is 0. Something is horribly wrong.");
+            logger.error("Number of BE nodes registered: " + backEndNodes.size());
+            System.exit(0);
         }
 
         long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
@@ -222,17 +229,19 @@ public class A1ManagementForwarder implements A1Management.Iface {
         return backendClient;
     }
 
-    private synchronized void updateWeight() {
-        backendNodeWeight = 0L;
+    private static long getWeight(List<DiscoveryInfo> nodes, Logger logger) {
 
-        for (DiscoveryInfo info : this.backEndNodes) {
-            backendNodeWeight += info.getNcores();
+        long newWeight = 0L;
+
+        for (DiscoveryInfo info : nodes) {
+            newWeight += (long)info.getNcores();
         }
+        return newWeight;
     }
 
-    private synchronized void subtractWeight(int weight) {
-        backendNodeWeight -= weight;
-    }
+    // private synchronized void subtractWeight(int weight) {
+    //     backendNodeWeight -= weight;
+    // }
 
     public synchronized void receiveRequest() {
         ++numReceived;

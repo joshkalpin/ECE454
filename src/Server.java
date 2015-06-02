@@ -70,7 +70,7 @@ public abstract class Server {
 
     protected void register(String host, int mPort, Logger logger, DiscoveryInfo registrationNode) {
         try {
-            logger.info("Registering with node " + host + ":" + mPort);
+            logger.info("Registering with " + host + ":" + mPort);
             TTransport transport = new TSocket(host, mPort);
             transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);

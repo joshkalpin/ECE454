@@ -48,7 +48,7 @@ public class BEServer extends Server {
             logger.info("Attempting to start management service...");
 
             TServerTransport passwordTransport = new TServerSocket(this.getPPort());
-            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler));
+            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler, logger));
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
             final TServer passwordServer =
                     new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
