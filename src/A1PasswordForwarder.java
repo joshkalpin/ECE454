@@ -18,20 +18,21 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     private A1ManagementForwarder forwarder;
     private Logger logger;
-    private Map<DiscoveryInfo, TTransport> openConnections;
+    private Map<DiscoveryInfo, Map<Long, TTransport>> openConnections;
 
     private static final int RETRY_COUNT = 10;
     private static final int SLEEP_TIME = 1000;
 
     public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
-        openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
+        openConnections = new ConcurrentHashMap<DiscoveryInfo, Map<Long, TTransport>>();
         this.forwarder = forwarder;
     }
 
     @Override
     public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
+        long timestamp = System.currentTimeMillis();
         int retryCount = RETRY_COUNT;
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
@@ -53,9 +54,9 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
             try {
                 logger.info("Attempting to connect to client: " + backendInfo + " for hashing.");
-                A1Password.Client backendClient = openClientConnection(backendInfo);
+                A1Password.Client backendClient = openClientConnection(backendInfo, timestamp);
                 String hashedPassword = backendClient.hashPassword(password, logRounds);
-                openConnections.remove(backendInfo).close();
+                openConnections.get(backendInfo).get(timestamp).close();
                 forwarder.completeRequest();
                 return hashedPassword;
             } catch (Exception e) {
@@ -68,6 +69,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     @Override
     public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
         forwarder.receiveRequest();
+        long timestamp = System.currentTimeMillis();
         int retryCount = RETRY_COUNT;
         while(true) {
             DiscoveryInfo backendInfo = forwarder.getRequestNode();
@@ -89,9 +91,9 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
             try {
                 logger.info("Attempting to connect to client: " + backendInfo + " for verifying.");
-                A1Password.Client backendClient = openClientConnection(backendInfo);
+                A1Password.Client backendClient = openClientConnection(backendInfo, timestamp);
                 boolean result = backendClient.checkPassword(password, hash);
-                openConnections.remove(backendInfo).close();
+                openConnections.get(backendInfo).get(timestamp).close();
                 forwarder.completeRequest();
                 return result;
             } catch (Exception e) {
@@ -101,13 +103,21 @@ public class A1PasswordForwarder implements A1Password.Iface {
         }
     }
 
-    private A1Password.Client openClientConnection(DiscoveryInfo info) throws TTransportException {
+    private A1Password.Client openClientConnection(DiscoveryInfo info, long timestamp) throws TTransportException {
         logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
         TTransport transport = new TSocket(info.getHost(), info.getPport());
         transport.open();
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Password.Client backendClient = new A1Password.Client(protocol);
-        openConnections.put(info, transport);
+
+        if (openConnections.containsKey(info)) {
+            Map <Long, TTransport> sockets = new ConcurrentHashMap<Long, TTransport>();
+            sockets.put(timestamp, transport);
+            openConnections.put(info, sockets);
+        } else {
+            openConnections.get(info).put(timestamp, transport);
+        }
+
         return backendClient;
     }
 }

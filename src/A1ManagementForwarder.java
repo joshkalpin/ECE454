@@ -25,7 +25,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private List<DiscoveryInfo> seeds;
     private List<DiscoveryInfo> frontEndNodes;
     private List<DiscoveryInfo> backEndNodes;
-    private Map<DiscoveryInfo, TTransport> openConnections;
+    private Map<DiscoveryInfo, Map<Long, TTransport>> openConnections;
     private boolean isSeed = false;
     private Logger logger;
     private long lastUpdated;
@@ -57,7 +57,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         TimerTask gossip = new Gossiper();
         gossipSchedule.scheduleAtFixedRate(gossip, GOSSIP_DELAY_MILLIS, GOSSIP_FREQUENCY_MILLIS);
 
-        openConnections = new ConcurrentHashMap<DiscoveryInfo, TTransport>();
+        openConnections = new ConcurrentHashMap<DiscoveryInfo, Map<Long, TTransport>>();
         backendNodeWeight = 0L;
         birthTime = System.currentTimeMillis();
     }
@@ -77,6 +77,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
     @Override
     public List<String> getGroupMembers() throws TException {
+        long timestamp = System.currentTimeMillis();
         while(true) {
             DiscoveryInfo backendInfo = this.getRequestNode();
 
@@ -85,9 +86,9 @@ public class A1ManagementForwarder implements A1Management.Iface {
             }
 
             try {
-                A1Management.Client backendClient = openClientConnection(backendInfo);
+                A1Management.Client backendClient = openClientConnection(backendInfo, timestamp);
                 List<String> members = backendClient.getGroupMembers();
-                openConnections.remove(backendInfo).close();
+                openConnections.get(backendInfo).get(timestamp).close();
                 return members;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
@@ -219,13 +220,21 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
     }
 
-    private synchronized A1Management.Client openClientConnection(DiscoveryInfo info) throws TTransportException {
+    private synchronized A1Management.Client openClientConnection(DiscoveryInfo info, long timestamp) throws TTransportException {
         logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
         TTransport transport = new TSocket(info.getHost(), info.getMport());
         transport.open();
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Management.Client backendClient = new A1Management.Client(protocol);
-        openConnections.put(info, transport);
+
+        if (openConnections.containsKey(info)) {
+            Map <Long, TTransport> sockets = new ConcurrentHashMap<Long, TTransport>();
+            sockets.put(timestamp, transport);
+            openConnections.put(info, sockets);
+        } else {
+            openConnections.get(info).put(timestamp, transport);
+        }
+
         return backendClient;
     }
 
