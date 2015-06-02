@@ -88,7 +88,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             try {
                 A1Management.Client backendClient = openClientConnection(backendInfo, timestamp);
                 List<String> members = backendClient.getGroupMembers();
-                openConnections.get(backendInfo).get(timestamp).close();
+                openConnections.get(backendInfo).remove(timestamp).close();
                 return members;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());

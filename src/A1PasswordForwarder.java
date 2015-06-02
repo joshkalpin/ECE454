@@ -39,6 +39,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
             if (backendInfo == null) {
                 if (retryCount == 0) {
+                    logger.error("Ran out of time. Throwing Exception");
                     throw new ServiceUnavailableException();
                 }
 
@@ -56,7 +57,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 logger.info("Attempting to connect to client: " + backendInfo + " for hashing.");
                 A1Password.Client backendClient = openClientConnection(backendInfo, timestamp);
                 String hashedPassword = backendClient.hashPassword(password, logRounds);
-                openConnections.get(backendInfo).get(timestamp).close();
+                openConnections.get(backendInfo).remove(timestamp).close();
                 forwarder.completeRequest();
                 return hashedPassword;
             } catch (Exception e) {
@@ -76,6 +77,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
             if (backendInfo == null) {
                 if (retryCount == 0) {
+                    logger.error("Ran out of time. Throwing Exception");
                     throw new ServiceUnavailableException();
                 }
 
@@ -93,7 +95,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 logger.info("Attempting to connect to client: " + backendInfo + " for verifying.");
                 A1Password.Client backendClient = openClientConnection(backendInfo, timestamp);
                 boolean result = backendClient.checkPassword(password, hash);
-                openConnections.get(backendInfo).get(timestamp).close();
+                openConnections.get(backendInfo).remove(timestamp).close();
                 forwarder.completeRequest();
                 return result;
             } catch (Exception e) {
