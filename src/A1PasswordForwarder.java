@@ -112,7 +112,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Password.Client backendClient = new A1Password.Client(protocol);
 
-        if (openConnections.containsKey(info)) {
+        if (!openConnections.containsKey(info)) {
             Map <Long, TTransport> sockets = new ConcurrentHashMap<Long, TTransport>();
             sockets.put(timestamp, transport);
             openConnections.put(info, sockets);

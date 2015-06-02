@@ -227,7 +227,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Management.Client backendClient = new A1Management.Client(protocol);
 
-        if (openConnections.containsKey(info)) {
+        if (!openConnections.containsKey(info)) {
             Map <Long, TTransport> sockets = new ConcurrentHashMap<Long, TTransport>();
             sockets.put(timestamp, transport);
             openConnections.put(info, sockets);
