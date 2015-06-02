@@ -74,6 +74,20 @@
     </java>
   </target>
 
+  <target name="complexclient" description="Run a scheduler test client">
+    <echo>Scheduled random tests:</echo>
+    <java classname="A1ScheduledClient" classpathref="main.classpath" failonerror="true">
+      <arg line="${args}"/>
+    </java>
+  </target>
+
+  <target name="perfcounters" description="Run a client that gets the perf counters for all given services" >
+    <echo>Getting perf counters for nodes:</echo>
+    <java classname="A1PerfCounterClient" classpathref="main.classpath" failonerror="true">
+      <arg line="${args}"/>
+    </java>
+  </target>
+
   <target name="generate">
     <!-- Generate the thrift gen-java source -->
     <!-- exec executable="../../compiler/cpp/thrift" failonerror="true" -->
