@@ -242,7 +242,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
         long work = (long)Math.ceil(Math.log((double)backEndNodes.get(0).getNcores()));
         Machine start = new Machine(work, backEndNodes.get(0), logger);
-        Machine next = start;
+        Machine next;
         Machine iter = start;
         for (int i = 1; i < backEndNodes.size(); i++) {
             work = (long)Math.ceil(Math.log((double)backEndNodes.get(i).getNcores()));

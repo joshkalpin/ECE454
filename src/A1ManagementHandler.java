@@ -4,7 +4,6 @@ import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

@@ -2,9 +2,7 @@ import ece454750s15a1.A1Password;
 import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
-
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 // generated thrift code
