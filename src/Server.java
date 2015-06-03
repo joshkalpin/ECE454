@@ -5,6 +5,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -102,7 +103,7 @@ public abstract class Server {
     protected void register(String host, int mPort, Logger logger, DiscoveryInfo registrationNode) {
         try {
             logger.info("Registering with " + host + ":" + mPort);
-            TTransport transport = new TSocket(host, mPort);
+            TTransport transport = new TFramedTransport(new TSocket(host, mPort));
             transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);
             A1Management.Client client = new A1Management.Client(protocol);

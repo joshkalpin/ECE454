@@ -3,6 +3,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class A1PerfCounterClient {
     private void outputPerfCounters(String[] info) {
         TTransport transport;
         try {
-            transport = new TSocket(info[0], Integer.parseInt(info[1]));
+            transport = new TFramedTransport(new TSocket(info[0], Integer.parseInt(info[1])));
             System.out.println("Host: " + info[0] + " Port: " + info[1]);
             transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);

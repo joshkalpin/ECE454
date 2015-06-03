@@ -7,6 +7,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     private A1Password.Client openClientConnection(DiscoveryInfo info, long timestamp) throws TTransportException {
         logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
-        TTransport transport = new TSocket(info.getHost(), info.getPport());
+        TTransport transport = new TFramedTransport(new TSocket(info.getHost(), info.getPport()));
         transport.open();
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Password.Client backendClient = new A1Password.Client(protocol);

@@ -8,6 +8,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +185,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             List<DiscoveryInfo> seedCopy = new Vector<DiscoveryInfo>(seeds);
             for (DiscoveryInfo seed : seeds) {
                 try {
-                    TTransport transport = new TSocket(seed.getHost(), seed.getMport());
+                    TTransport transport = new TFramedTransport(new TSocket(seed.getHost(), seed.getMport()));
                     transport.open();
                     TProtocol protocol = new TBinaryProtocol(transport);
                     A1Management.Client seedClient = new A1Management.Client(protocol);
@@ -262,7 +263,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         if (!seeds.isEmpty() && !isSeed) {
             DiscoveryInfo seed = seeds.get(ThreadLocalRandom.current().nextInt(seeds.size()));
             try {
-                TTransport seedTransport = new TSocket(seed.getHost(), seed.getMport());
+                TTransport seedTransport = new TFramedTransport(new TSocket(seed.getHost(), seed.getMport()));
                 seedTransport.open();
                 TProtocol seedProtocol = new TBinaryProtocol(seedTransport);
                 A1Management.Client seedClient = new A1Management.Client(seedProtocol);
@@ -277,7 +278,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         if (!frontEndNodes.isEmpty()) {
             DiscoveryInfo friend = frontEndNodes.get(ThreadLocalRandom.current().nextInt(frontEndNodes.size()));
             try {
-                TTransport friendTransport = new TSocket(friend.getHost(), friend.getMport());
+                TTransport friendTransport = new TFramedTransport(new TSocket(friend.getHost(), friend.getMport()));
                 friendTransport.open();
                 TProtocol friendProtocol = new TBinaryProtocol(friendTransport);
                 A1Management.Client friendClient = new A1Management.Client(friendProtocol);
@@ -293,7 +294,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
     private synchronized A1Management.Client openClientConnection(DiscoveryInfo info, long timestamp) throws TTransportException {
         logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
-        TTransport transport = new TSocket(info.getHost(), info.getMport());
+        TTransport transport = new TFramedTransport(new TSocket(info.getHost(), info.getMport()));
         transport.open();
         TProtocol protocol = new TBinaryProtocol(transport);
         A1Management.Client backendClient = new A1Management.Client(protocol);

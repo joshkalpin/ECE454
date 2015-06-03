@@ -3,9 +3,12 @@ import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +38,7 @@ public class FEServer extends Server {
     protected void start() {
         try {
             logger.info("Starting server");
-            TServerTransport managementServerSocket = new TServerSocket(this.getMPort());
+            TNonblockingServerTransport managementServerSocket = new TNonblockingServerSocket(this.getMPort());
 
             A1ManagementForwarder managementForwarder;
             List <DiscoveryInfo> seeds = getSeeds();
@@ -58,8 +61,8 @@ public class FEServer extends Server {
             logger.info(this.getHost() + ": opening " + this.getMPort() + " for management server...");
 
             A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementServerSocket);
-            final TServer managementServer = new TThreadPoolServer(managementArgs.processor(managementProcessor));
+            TThreadedSelectorServer.Args managementArgs = new TThreadedSelectorServer.Args(managementServerSocket);
+            final TServer managementServer = new TThreadedSelectorServer(managementArgs.processor(managementProcessor));
 
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 

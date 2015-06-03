@@ -3,9 +3,13 @@ import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.server.THsHaServer;
+import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +41,22 @@ public class BEServer extends Server {
     @Override
     protected void start() {
         try {
-            TServerTransport managementTransport = new TServerSocket(this.getMPort());
+            TNonblockingServerTransport managementTransport = new TNonblockingServerSocket(this.getMPort());
             A1ManagementHandler managementHandler = new A1ManagementHandler();
             A1Management.Processor managementProcessor = new A1Management.Processor(managementHandler);
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
+            TNonblockingServer.Args managementArgs = new TNonblockingServer.Args(managementTransport);
             final TServer managementServer =
-                new TThreadPoolServer(managementArgs.processor(managementProcessor));
+                new TNonblockingServer(managementArgs.processor(managementProcessor));
 
             logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
 
             logger.info("Attempting to start management service...");
 
-            TServerTransport passwordTransport = new TServerSocket(this.getPPort());
+            TNonblockingServerTransport passwordTransport = new TNonblockingServerSocket(this.getPPort());
             A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler, logger));
-            TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
+            THsHaServer.Args passwordArgs = new THsHaServer.Args(passwordTransport);
             final TServer passwordServer =
-                    new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
+                    new THsHaServer(passwordArgs.processor(passwordProcessor));
             logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
             Runnable passwordHandler = new Runnable() {
