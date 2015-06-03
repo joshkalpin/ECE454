@@ -62,6 +62,7 @@ public class FEServer extends Server {
 
             A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
             TThreadedSelectorServer.Args managementArgs = new TThreadedSelectorServer.Args(managementServerSocket);
+            managementArgs.selectorThreads(this.getNCores());
             final TServer managementServer = new TThreadedSelectorServer(managementArgs.processor(managementProcessor));
 
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
