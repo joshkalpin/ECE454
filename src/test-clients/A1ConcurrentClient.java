@@ -43,7 +43,7 @@ public class A1ConcurrentClient {
                 System.exit(0);
             }
         }
-        Random rng = ThreadLocalRandom.current();
+        Random rng = new Random(System.currentTimeMillis());
         if (rounds == 0) {
             rounds = connections.size() + rng.nextInt(connections.size() * 3);
         }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -34,6 +35,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private int numCompleted = 0;
     private long birthTime = 0;
     private Machine roundRobin;
+    private Random rng;
 
     private static final long GOSSIP_FREQUENCY_MILLIS = 100L;
     private static final long GOSSIP_DELAY_MILLIS = 2000L;
@@ -105,6 +107,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
         openConnections = new ConcurrentHashMap<DiscoveryInfo, Map<Long, TTransport>>();
         birthTime = System.currentTimeMillis();
+        rng = new Random(System.currentTimeMillis());
     }
 
     public A1ManagementForwarder(List<DiscoveryInfo> seeds, DiscoveryInfo self) {
@@ -261,7 +264,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
     private void gossip() {
         if (!seeds.isEmpty() && !isSeed) {
-            DiscoveryInfo seed = seeds.get(ThreadLocalRandom.current().nextInt(seeds.size()));
+            DiscoveryInfo seed = seeds.get(rng.nextInt(seeds.size()));
             try {
                 TTransport seedTransport = new TFramedTransport(new TSocket(seed.getHost(), seed.getMport()));
                 seedTransport.open();
@@ -276,7 +279,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             }
         }
         if (!frontEndNodes.isEmpty()) {
-            DiscoveryInfo friend = frontEndNodes.get(ThreadLocalRandom.current().nextInt(frontEndNodes.size()));
+            DiscoveryInfo friend = frontEndNodes.get(rng.nextInt(frontEndNodes.size()));
             try {
                 TTransport friendTransport = new TFramedTransport(new TSocket(friend.getHost(), friend.getMport()));
                 friendTransport.open();
