@@ -46,6 +46,50 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
     }
 
+    private class Machine {
+        private long maxWork;
+        private long workload;
+        private DiscoveryInfo info;
+        private Machine next;
+        private Logger log;
+
+        public Machine(long workCapability, DiscoveryInfo machineInfo, Logger logger) {
+            maxWork = workCapability;
+            workload = workCapability;
+            info = machineInfo;
+            next = null;
+            log = logger;
+        }
+
+        // how many more tasks the machine can take
+        public long loadRemaining() {
+             return workload;
+        }
+
+        public DiscoveryInfo getInfo() {
+            return info;
+        }
+
+        public Machine getNext() {
+            return next;
+        }
+
+        public void setNext(Machine nextMachine) {
+            next = nextMachine;
+        }
+
+        public synchronized Machine assignWork() {
+            if (workload > 0) {
+                logger.info("Worker queued: " + this.getInfo() + " " + workload);
+                --workload;
+                return this;
+            }
+            logger.info("Worker queued: " + this.next.getInfo() + " " + workload);
+            workload = maxWork;
+            return this.getNext();
+        }
+    }
+
     public A1ManagementForwarder(List<DiscoveryInfo> seeds) {
         super();
         this.seeds = seeds;
@@ -128,7 +172,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
         this.frontEndNodes = frontend;
         this.backEndNodes = backend;
         roundRobin = generateRoundRobin();
-        //backendNodeWeight = getWeight(this.backEndNodes, logger);
     }
 
     @Override
@@ -186,67 +229,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
         roundRobin = roundRobin.assignWork();
         return roundRobin.getInfo();
-        // backendNodeWeight = getWeight(backEndNodes, logger);
-        // logger.info("Backend Node Weight: " + backendNodeWeight);
-        // if (backendNodeWeight == 0) {
-        //     logger.error("Backend node weight is 0. Something is horribly wrong.");
-        //     logger.error("Number of BE nodes registered: " + backEndNodes.size());
-        //     System.exit(0);
-        // }
-
-        // long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
-        // for (DiscoveryInfo backEndNode : backEndNodes) {
-        //     random -= backEndNode.getNcores();
-        //     if (random <= 0) {
-        //         return backEndNode;
-        //     }
-        // }
-
-        // return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
-    }
-
-    private class Machine {
-        private long maxWork;
-        private long workload;
-        private DiscoveryInfo info;
-        private Machine next;
-        private Logger log;
-
-        public Machine(long workCapability, DiscoveryInfo machineInfo, Logger logger) {
-            maxWork = workCapability;
-            workload = workCapability;
-            info = machineInfo;
-            next = null;
-            log = logger;
-        }
-
-        // how many more tasks the machine can take
-        public long loadRemaining() {
-             return workload;
-        }
-
-        public DiscoveryInfo getInfo() {
-            return info;
-        }
-
-        public Machine getNext() {
-            return next;
-        }
-
-        public void setNext(Machine nextMachine) {
-            next = nextMachine;
-        }
-
-        public synchronized Machine assignWork() {
-            if (workload > 0) {
-                logger.info("Worker queued: " + this.getInfo() + " " + workload);
-                --workload;
-                return this;
-            }
-            logger.info("Worker queued: " + this.next.getInfo() + " " + workload);
-            workload = maxWork;
-            return this.getNext();
-        }
     }
 
     private synchronized Machine generateRoundRobin() throws TException {
@@ -321,20 +303,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
         return backendClient;
     }
-
-    private static long getWeight(List<DiscoveryInfo> nodes, Logger logger) {
-
-        long newWeight = 0L;
-
-        for (DiscoveryInfo info : nodes) {
-            newWeight += (long)info.getNcores();
-        }
-        return newWeight;
-    }
-
-    // private synchronized void subtractWeight(int weight) {
-    //     backendNodeWeight -= weight;
-    // }
 
     public synchronized void receiveRequest() {
         ++numReceived;
