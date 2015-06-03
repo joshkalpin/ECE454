@@ -18,10 +18,10 @@ public abstract class Server {
     *   seeds: comma-separated list of host:portpairs corresponding to FE seed nodes
     **/
 
-    private String host;
-    private int pport;
-    private int mport;
-    private int ncores;
+    private String host = "localhost";
+    private int pport = -1;
+    private int mport = -1;
+    private int ncores = -1;
     private List<DiscoveryInfo> seeds;
 
     protected static int DISCOVERY_TIMEOUT = 10000;
@@ -51,6 +51,36 @@ public abstract class Server {
                 System.out.println("Invalid option " + args[i] + " provided to server. Exiting...");
                 System.exit(0);
             }
+        }
+        boolean errorDetected = false;
+        if (ncores <= 0) {
+            errorDetected = true;
+            System.out.println("Number of cores must be greater than 0.");
+        }
+
+        if (pport < 0 || pport > 65535) {
+            errorDetected = true;
+            System.out.println("Password port must be in viable port range (0-65535)");
+        }
+
+        if (mport < 0 || mport > 65535) {
+            errorDetected = true;
+            System.out.println("Management port must be in viable port range (0-65535)");
+        }
+
+        if (mport == pport) {
+            errorDetected = true;
+            System.out.println("Password port and management port must have different port numbers");
+        }
+
+        if (seeds.isEmpty()) {
+            errorDetected = true;
+            System.out.println("Seed nodes are required for initial node connection.");
+        }
+
+        if (errorDetected) {
+            System.err.println("Errors detected with command line options. Unable to start server");
+            System.exit(0);
         }
     }
 
