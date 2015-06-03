@@ -33,6 +33,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private int numReceived = 0;
     private int numCompleted = 0;
     private long birthTime = 0;
+    private Machine roundRobin;
 
     private static final long GOSSIP_FREQUENCY_MILLIS = 100L;
     private static final long GOSSIP_DELAY_MILLIS = 2000L;
@@ -48,6 +49,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     public A1ManagementForwarder(List<DiscoveryInfo> seeds) {
         super();
         this.seeds = seeds;
+        roundRobin = null;
         backEndNodes = new Vector<DiscoveryInfo>();
         frontEndNodes = new Vector<DiscoveryInfo>();
         logger = LoggerFactory.getLogger(FEServer.class);
@@ -111,7 +113,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
             frontEndNodes.add(discoveryInfo);
         }
         lastUpdated = System.currentTimeMillis();
-
+        roundRobin = generateRoundRobin();
         return true;
     }
 
@@ -125,7 +127,8 @@ public class A1ManagementForwarder implements A1Management.Iface {
         logger.info("" + lastUpdated + " - Received new information about system. Updating cluster state knowledge.");
         this.frontEndNodes = frontend;
         this.backEndNodes = backend;
-        backendNodeWeight = getWeight(this.backEndNodes, logger);
+        roundRobin = generateRoundRobin();
+        //backendNodeWeight = getWeight(this.backEndNodes, logger);
     }
 
     @Override
@@ -160,6 +163,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
         }
 
         backEndNodes.remove(backend);
+        roundRobin = generateRoundRobin();
         // subtractWeight(backend.getNcores());
     }
 
@@ -168,23 +172,103 @@ public class A1ManagementForwarder implements A1Management.Iface {
         if (backEndNodes.isEmpty()) {
             return null;
         }
-        backendNodeWeight = getWeight(backEndNodes, logger);
 
-        if (backendNodeWeight == 0) {
-            logger.error("Backend node weight is 0. Something is horribly wrong.");
-            logger.error("Number of BE nodes registered: " + backEndNodes.size());
-            System.exit(0);
-        }
-
-        long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
-        for (DiscoveryInfo backEndNode : backEndNodes) {
-            random -= backEndNode.getNcores();
-            if (random <= 0) {
-                return backEndNode;
+        while (roundRobin == null) {
+            roundRobin = generateRoundRobin();
+            // wait for additional registrations for a bit then try again
+            // only sleep if we don't get the results right away
+            if (roundRobin == null) {
+                try {
+                    Thread.sleep(GOSSIP_DELAY_MILLIS);
+                // let it fall through and continue looping
+                } catch (InterruptedException e) { }
             }
         }
+        roundRobin = roundRobin.assignWork();
+        return roundRobin.getInfo();
+        // backendNodeWeight = getWeight(backEndNodes, logger);
+        // logger.info("Backend Node Weight: " + backendNodeWeight);
+        // if (backendNodeWeight == 0) {
+        //     logger.error("Backend node weight is 0. Something is horribly wrong.");
+        //     logger.error("Number of BE nodes registered: " + backEndNodes.size());
+        //     System.exit(0);
+        // }
 
-        return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
+        // long random = ThreadLocalRandom.current().nextLong(backendNodeWeight);
+        // for (DiscoveryInfo backEndNode : backEndNodes) {
+        //     random -= backEndNode.getNcores();
+        //     if (random <= 0) {
+        //         return backEndNode;
+        //     }
+        // }
+
+        // return backEndNodes.get(ThreadLocalRandom.current().nextInt(backEndNodes.size()));
+    }
+
+    private class Machine {
+        private long maxWork;
+        private long workload;
+        private DiscoveryInfo info;
+        private Machine next;
+        private Logger log;
+
+        public Machine(long workCapability, DiscoveryInfo machineInfo, Logger logger) {
+            maxWork = workCapability;
+            workload = workCapability;
+            info = machineInfo;
+            next = null;
+            log = logger;
+        }
+
+        // how many more tasks the machine can take
+        public long loadRemaining() {
+             return workload;
+        }
+
+        public DiscoveryInfo getInfo() {
+            return info;
+        }
+
+        public Machine getNext() {
+            return next;
+        }
+
+        public void setNext(Machine nextMachine) {
+            next = nextMachine;
+        }
+
+        public synchronized Machine assignWork() {
+            if (workload > 0) {
+                logger.info("Worker queued: " + this.getInfo() + " " + workload);
+                --workload;
+                return this;
+            }
+            logger.info("Worker queued: " + this.next.getInfo() + " " + workload);
+            workload = maxWork;
+            return this.getNext();
+        }
+    }
+
+    private synchronized Machine generateRoundRobin() throws TException {
+        if (backEndNodes.isEmpty()) {
+            return null;
+        }
+        long work = (long)Math.ceil(Math.log((double)backEndNodes.get(0).getNcores()));
+        Machine start = new Machine(work, backEndNodes.get(0), logger);
+        Machine next = start;
+        Machine iter = start;
+        for (int i = 1; i < backEndNodes.size(); i++) {
+            work = (long)Math.ceil(Math.log((double)backEndNodes.get(i).getNcores()));
+            next = new Machine(work, backEndNodes.get(i), logger);
+            if (i == 1) {
+                start.setNext(next);
+            } else {
+                iter.setNext(next);
+            }
+            iter = next;
+        }
+        iter.setNext(start);
+        return start;
     }
 
     private void gossip() {

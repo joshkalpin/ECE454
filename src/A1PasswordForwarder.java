@@ -22,6 +22,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
 
     private static final int RETRY_COUNT = 10;
     private static final int SLEEP_TIME = 1000;
+    private static final int REQUEST_TIMEOUT = 10000;
 
     public A1PasswordForwarder(A1ManagementForwarder forwarder) {
         logger = LoggerFactory.getLogger(FEServer.class);
@@ -100,6 +101,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 return result;
             } catch (Exception e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
+                logger.warn(e.toString());
                 forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
         }
