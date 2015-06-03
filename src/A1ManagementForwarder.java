@@ -29,7 +29,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
     private boolean isSeed = false;
     private Logger logger;
     private long lastUpdated;
-    private long backendNodeWeight;
     private int numReceived = 0;
     private int numCompleted = 0;
     private long birthTime = 0;
@@ -104,7 +103,6 @@ public class A1ManagementForwarder implements A1Management.Iface {
         gossipSchedule.scheduleAtFixedRate(gossip, GOSSIP_DELAY_MILLIS, GOSSIP_FREQUENCY_MILLIS);
 
         openConnections = new ConcurrentHashMap<DiscoveryInfo, Map<Long, TTransport>>();
-        backendNodeWeight = 0L;
         birthTime = System.currentTimeMillis();
     }
 
@@ -122,7 +120,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public List<String> getGroupMembers() throws TException {
+    public List<String> getGroupMembers() throws ServiceUnavailableException, InvalidNodeException {
         long timestamp = System.currentTimeMillis();
         while(true) {
             DiscoveryInfo backendInfo = this.getRequestNode();
@@ -136,7 +134,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
                 List<String> members = backendClient.getGroupMembers();
                 openConnections.get(backendInfo).remove(timestamp).close();
                 return members;
-            } catch (Exception e) {
+            } catch (TException e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
                 this.reportNode(backendInfo, System.currentTimeMillis());
             }
@@ -144,7 +142,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public boolean registerNode(DiscoveryInfo discoveryInfo) throws TException {
+    public boolean registerNode(DiscoveryInfo discoveryInfo) {
         if (!isSeed) {
             return false;
         }
@@ -162,7 +160,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp) throws TException, InvalidNodeException {
+    public void inform(List<DiscoveryInfo> frontend, List<DiscoveryInfo> backend, long timestamp) throws InvalidNodeException {
         if (timestamp <= lastUpdated) {
             return;
         }
@@ -175,7 +173,7 @@ public class A1ManagementForwarder implements A1Management.Iface {
     }
 
     @Override
-    public void reportNode(DiscoveryInfo backend, long timestamp) throws TException, InvalidNodeException {
+    public void reportNode(DiscoveryInfo backend, long timestamp) throws InvalidNodeException {
         if (timestamp <= lastUpdated) {
             return;
         }
@@ -192,8 +190,14 @@ public class A1ManagementForwarder implements A1Management.Iface {
                     A1Management.Client seedClient = new A1Management.Client(protocol);
                     seedClient.reportNode(backend, timestamp);
                     transport.close();
-                } catch (Exception e) {
+                } catch(TTransportException e) {
                     seedCopy.remove(seed);
+                    logger.warn("Opening Socket Failed");
+                    logger.warn("Unable to inform seed node " + seed.toString() + " of bad BE node. Seed node may be down.");
+                    logger.info("Removing seed node from list of available nodes.");
+                } catch (TException e) {
+                    seedCopy.remove(seed);
+                    logger.warn("Management client failed");
                     logger.warn("Unable to inform seed node " + seed.toString() + " of bad BE node. Seed node may be down.");
                     logger.info("Removing seed node from list of available nodes.");
                 }
@@ -207,11 +211,10 @@ public class A1ManagementForwarder implements A1Management.Iface {
 
         backEndNodes.remove(backend);
         roundRobin = generateRoundRobin();
-        // subtractWeight(backend.getNcores());
     }
 
     @Override
-    public DiscoveryInfo getRequestNode() throws TException {
+    public DiscoveryInfo getRequestNode() {
         if (backEndNodes.isEmpty()) {
             return null;
         }
@@ -224,14 +227,16 @@ public class A1ManagementForwarder implements A1Management.Iface {
                 try {
                     Thread.sleep(GOSSIP_DELAY_MILLIS);
                 // let it fall through and continue looping
-                } catch (InterruptedException e) { }
+                } catch (InterruptedException e) {
+                    logger.warn("Sleep interrupted while getting request node");
+                }
             }
         }
         roundRobin = roundRobin.assignWork();
         return roundRobin.getInfo();
     }
 
-    private synchronized Machine generateRoundRobin() throws TException {
+    private synchronized Machine generateRoundRobin() {
         if (backEndNodes.isEmpty()) {
             return null;
         }

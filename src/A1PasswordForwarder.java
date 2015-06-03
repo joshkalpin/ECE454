@@ -1,5 +1,6 @@
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
+import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -7,6 +8,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     }
 
     @Override
-    public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, TException {
+    public String hashPassword(String password, short logRounds) throws ServiceUnavailableException, InvalidNodeException {
         forwarder.receiveRequest();
         long timestamp = System.currentTimeMillis();
         int retryCount = RETRY_COUNT;
@@ -61,7 +63,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 openConnections.get(backendInfo).remove(timestamp).close();
                 forwarder.completeRequest();
                 return hashedPassword;
-            } catch (Exception e) {
+            } catch (TException e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
                 forwarder.reportNode(backendInfo, System.currentTimeMillis());
             }
@@ -69,7 +71,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
     }
 
     @Override
-    public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, TException {
+    public boolean checkPassword(String password, String hash) throws ServiceUnavailableException, InvalidNodeException {
         forwarder.receiveRequest();
         long timestamp = System.currentTimeMillis();
         int retryCount = RETRY_COUNT;
@@ -99,7 +101,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
                 openConnections.get(backendInfo).remove(timestamp).close();
                 forwarder.completeRequest();
                 return result;
-            } catch (Exception e) {
+            } catch (TException e) {
                 logger.warn("Unable to connect to node: " + backendInfo.toString());
                 logger.warn(e.toString());
                 forwarder.reportNode(backendInfo, System.currentTimeMillis());

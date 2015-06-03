@@ -1,6 +1,7 @@
 import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
+import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
@@ -93,7 +94,7 @@ public class FEServer extends Server {
             managementServer.serve();
 
         }
-        catch (Exception e) {
+        catch (TException e) {
             logger.error("Exception thrown");
             e.printStackTrace();
         }
