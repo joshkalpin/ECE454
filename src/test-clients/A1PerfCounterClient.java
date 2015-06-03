@@ -61,6 +61,7 @@ public class A1PerfCounterClient {
             A1Management.Client client = new A1Management.Client(protocol);
 
             System.out.println(client.getPerfCounters());
+            System.out.println(client.getGroupMembers());
             transport.close();
         } catch (Exception e) {
             e.printStackTrace();
