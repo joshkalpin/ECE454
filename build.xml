@@ -1,4 +1,4 @@
-<project name="ece454750s15a1" default="compile" basedir=".">
+<project name="ece454750s15a1" default="main" basedir=".">
 
   <description>ECE454 A1</description>
 
@@ -6,17 +6,17 @@
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
 
-  <path id="libs.classpath">
-    <fileset dir="./jars">
+  <path id="lib.classpath">
+    <fileset dir="./lib">
       <include name="*.jar" />
     </fileset>
     <!-- TODO: unify location for jar files during link -->
-    <fileset dir="./jars">
+    <fileset dir="./lib">
       <include name="*.jar" />
     </fileset>
   </path>
   <path id="build.classpath">
-    <path refid="libs.classpath" />
+    <path refid="lib.classpath" />
     <pathelement path="${gen}" />
   </path>
 
@@ -36,32 +36,32 @@
   </target>
 
   <target name="compile" depends="init, generate">
-    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="libs.classpath" />
+    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="lib.classpath" />
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
   <target name="main" description="execute the program" depends="compile" >
-    <jar jarfile="main.jar" basedir="${build}"/>
+    <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
   </target>
 
 
   <target name="be" description="Run a backend server" >
     <echo>backend node:</echo>
-    <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
+    <java classname="BEServer" classpathref="ece454750s15a1.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="fe" description="Run a frontend server" >
     <echo>frontend node:</echo>
-    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
+    <java classname="FEServer" classpathref="ece454750s15a1.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="seed" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
-    <java classname="FEServer" classpathref="main.classpath"
+    <java classname="FEServer" classpathref="ece454750s15a1.classpath"
       failonerror="true" output="${build}/log/frontend/${hostname}:${mport}-seed.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
@@ -69,28 +69,29 @@
 
   <target name="client" description="Run a test client" >
     <echo>Test client:</echo>
-    <java classname="A1Client" classpathref="main.classpath" failonerror="true">
+    <java classname="A1Client" classpathref="ece454750s15a1.classpath" failonerror="true">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="complexclient" description="Run a scheduler test client">
     <echo>Scheduled random tests:</echo>
-    <java classname="A1ScheduledClient" classpathref="main.classpath" failonerror="true">
+    <java classname="A1ScheduledClient" classpathref="ece454750s15a1.classpath" failonerror="true">
       <arg line="${args}"/>
     </java>
   </target>
 
   <target name="perfcounters" description="Run a client that gets the perf counters for all given services" >
     <echo>Getting perf counters for nodes:</echo>
-    <java classname="A1PerfCounterClient" classpathref="main.classpath" failonerror="true">
+    <java classname="A1PerfCounterClient" classpathref="ece454750s15a1.classpath" failonerror="true">
       <arg line="${args}"/>
+
     </java>
   </target>
 
   <target name="concurrentclient" description="Run a concurrent test client">
     <echo>Concurrent random tests:</echo>
-    <java classname="A1ConcurrentClient" classpathref="main.classpath" failonerror="true"
+    <java classname="A1ConcurrentClient" classpathref="ece454750s15a1.classpath" failonerror="true"
       output="${build}/log/test-clients/A1ConcurrentClient.log">
       <arg line="${args}"/>
     </java>
@@ -111,7 +112,7 @@
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${gen}"/>
-    <delete file="main.jar" />
+    <delete file="ece454750s15a1.jar" />
   </target>
 
 </project>

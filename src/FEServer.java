@@ -70,7 +70,12 @@ public class FEServer extends Server {
             A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(managementForwarder);
             A1Password.Processor passwordProcessor = new A1Password.Processor(passwordForwarder);
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordServerSocket);
-            passwordArgs.maxWorkerThreads(this.getNCores());
+
+            int threadCount = 5;
+            if (this.getNCores() > 2) {
+                threadCount = this.getNCores() * 2;
+            }
+            passwordArgs.maxWorkerThreads(threadCount);
             final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
             ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
             if (!isSeed) {
