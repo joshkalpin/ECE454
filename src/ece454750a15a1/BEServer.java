@@ -1,16 +1,23 @@
+package ece454750a15a1;
+
 import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.server.TThreadPoolServer;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.server.THsHaServer;
+import org.apache.thrift.server.TNonblockingServer;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class BEServer extends Server {
 
@@ -36,22 +43,24 @@ public class BEServer extends Server {
     @Override
     protected void start() {
         try {
-            TServerTransport managementTransport = new TServerSocket(this.getMPort());
+            TNonblockingServerTransport managementTransport = new TNonblockingServerSocket(this.getMPort());
             A1ManagementHandler managementHandler = new A1ManagementHandler();
             A1Management.Processor managementProcessor = new A1Management.Processor(managementHandler);
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementTransport);
-            final TServer managementServer =
-                new TThreadPoolServer(managementArgs.processor(managementProcessor));
+            TNonblockingServer.Args managementArgs = new TNonblockingServer.Args(managementTransport);
+            final TServer managementServer = new TNonblockingServer(
+                    managementArgs.processor(managementProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
 
             logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
 
             logger.info("Attempting to start management service...");
 
-            TServerTransport passwordTransport = new TServerSocket(this.getPPort());
-            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler));
-            TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordTransport);
-            final TServer passwordServer =
-                    new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
+            TNonblockingServerTransport passwordTransport = new TNonblockingServerSocket(this.getPPort());
+            A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler, logger));
+            THsHaServer.Args passwordArgs = new THsHaServer.Args(passwordTransport);
+            final TServer passwordServer = new THsHaServer(
+                    passwordArgs.processor(passwordProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
             logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
             Runnable passwordHandler = new Runnable() {
@@ -63,8 +72,7 @@ public class BEServer extends Server {
             logger.info("Attempting to start password service...");
 
             List<DiscoveryInfo> seeds = getSeeds();
-            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
-            executor.submit(passwordHandler);
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size() + 1);
 
             for (final DiscoveryInfo seed : seeds) {
                 Runnable runnable = new Runnable() {
@@ -74,12 +82,19 @@ public class BEServer extends Server {
                     }
                 };
 
-                executor.submit(runnable);
+                executor.execute(runnable);
             }
 
+            executor.execute(passwordHandler);
+
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+
             managementServer.serve();
-        }
-        catch (Exception e) {
+        } catch (TException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            logger.error("executor termination interrupted");
             e.printStackTrace();
         }
     }

@@ -1,9 +1,13 @@
+package ece454750a15a1;
+
 import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
-import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -18,10 +22,10 @@ public abstract class Server {
     *   seeds: comma-separated list of host:portpairs corresponding to FE seed nodes
     **/
 
-    private String host;
-    private int pport;
-    private int mport;
-    private int ncores;
+    private String host = "localhost";
+    private int pport = -1;
+    private int mport = -1;
+    private int ncores = -1;
     private List<DiscoveryInfo> seeds;
 
     protected static int DISCOVERY_TIMEOUT = 10000;
@@ -52,6 +56,36 @@ public abstract class Server {
                 System.exit(0);
             }
         }
+        boolean errorDetected = false;
+        if (ncores <= 0) {
+            errorDetected = true;
+            System.out.println("Number of cores must be greater than 0.");
+        }
+
+        if (pport < 0 || pport > 65535) {
+            errorDetected = true;
+            System.out.println("Password port must be in viable port range (0-65535)");
+        }
+
+        if (mport < 0 || mport > 65535) {
+            errorDetected = true;
+            System.out.println("Management port must be in viable port range (0-65535)");
+        }
+
+        if (mport == pport) {
+            errorDetected = true;
+            System.out.println("Password port and management port must have different port numbers");
+        }
+
+        if (seeds.isEmpty()) {
+            errorDetected = true;
+            System.out.println("Seed nodes are required for initial node connection.");
+        }
+
+        if (errorDetected) {
+            System.err.println("Errors detected with command line options. Unable to start server");
+            System.exit(0);
+        }
     }
 
     private void createSeeds(String[] rawSeeds) {
@@ -70,10 +104,10 @@ public abstract class Server {
 
     protected void register(String host, int mPort, Logger logger, DiscoveryInfo registrationNode) {
         try {
-            logger.info("Registering with node " + host + ":" + mPort);
-            TTransport transport = new TSocket(host, mPort);
+            logger.info("Registering with " + host + ":" + mPort);
+            TTransport transport = new TFramedTransport(new TSocket(host, mPort));
             transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
+            TProtocol protocol = new TCompactProtocol(transport);
             A1Management.Client client = new A1Management.Client(protocol);
             // set timeout to 10 seconds
             // transport.setTimeout(DISCOVERY_TIMEOUT);
@@ -82,7 +116,7 @@ public abstract class Server {
 
             transport.close();
             logger.info("Successfully registered with " + host + ":" + mPort + ".");
-        } catch (Exception e) {
+        } catch (TException e) {
             logger.warn("Failed to register with " + host + ":" + mPort);
             e.printStackTrace();
         }

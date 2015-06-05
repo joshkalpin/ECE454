@@ -1,18 +1,24 @@
+package ece454750a15a1;
+
 import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class FEServer extends Server {
 
@@ -36,7 +42,7 @@ public class FEServer extends Server {
     protected void start() {
         try {
             logger.info("Starting server");
-            TServerTransport managementServerSocket = new TServerSocket(this.getMPort());
+            TNonblockingServerTransport managementServerSocket = new TNonblockingServerSocket(this.getMPort());
 
             A1ManagementForwarder managementForwarder;
             List <DiscoveryInfo> seeds = getSeeds();
@@ -59,8 +65,10 @@ public class FEServer extends Server {
             logger.info(this.getHost() + ": opening " + this.getMPort() + " for management server...");
 
             A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
-            TThreadPoolServer.Args managementArgs = new TThreadPoolServer.Args(managementServerSocket);
-            final TServer managementServer = new TThreadPoolServer(managementArgs.processor(managementProcessor));
+            TThreadedSelectorServer.Args managementArgs = new TThreadedSelectorServer.Args(managementServerSocket);
+            final TServer managementServer = new TThreadedSelectorServer(
+                    managementArgs.processor(managementProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
 
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 
@@ -68,14 +76,21 @@ public class FEServer extends Server {
             A1PasswordForwarder passwordForwarder = new A1PasswordForwarder(managementForwarder);
             A1Password.Processor passwordProcessor = new A1Password.Processor(passwordForwarder);
             TThreadPoolServer.Args passwordArgs = new TThreadPoolServer.Args(passwordServerSocket);
-            final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
-            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
+
+            int threadCount = 5;
+            if (this.getNCores() > 2) {
+                threadCount = this.getNCores() * 2;
+            }
+            passwordArgs.maxWorkerThreads(threadCount);
+            final TServer passwordServer = new TThreadPoolServer(
+                    passwordArgs.processor(passwordProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size() + 1);
             if (!isSeed) {
                 for (final DiscoveryInfo seed : seeds) {
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            logger.info("Registering with seed " + seed.getHost() + ":" + seed.getMport());
                             register(seed.getHost(), seed.getMport(), logger, self);
                         }
                     };
@@ -90,12 +105,18 @@ public class FEServer extends Server {
             };
             logger.info("Starting password forwarder.");
             executor.submit(passwordService);
+
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+
             logger.info("Starting management server.");
             managementServer.serve();
 
-        }
-        catch (Exception e) {
+        } catch (TException e) {
             logger.error("Exception thrown");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            logger.error("executor termination interrupted");
             e.printStackTrace();
         }
     }

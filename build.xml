@@ -1,4 +1,4 @@
-<project name="ece454750s15a1" default="compile" basedir=".">
+<project name="ece454750s15a1" default="main" basedir=".">
 
   <description>ECE454 A1</description>
 
@@ -6,24 +6,24 @@
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
 
-  <path id="libs.classpath">
-    <fileset dir="./jars">
+  <path id="lib.classpath">
+    <fileset dir="./lib">
       <include name="*.jar" />
     </fileset>
     <!-- TODO: unify location for jar files during link -->
-    <fileset dir="./jars">
+    <fileset dir="./lib">
       <include name="*.jar" />
     </fileset>
   </path>
   <path id="build.classpath">
-    <path refid="libs.classpath" />
+    <path refid="lib.classpath" />
     <pathelement path="${gen}" />
   </path>
 
     <path id="main.classpath">
     <path refid="build.classpath" />
     <pathelement path="${build}" />
-    <pathelement path="main.jar" />
+    <pathelement path="ece454750s15a1.jar" />
   </path>
 
   <target name="init">
@@ -32,16 +32,16 @@
     <mkdir dir="${build}/log"/>
     <mkdir dir="${build}/log/backend" />
     <mkdir dir="${build}/log/frontend" />
-    <mkdir dir="${build}/lib"/>
+    <mkdir dir="${build}/log/test-clients" />
   </target>
 
   <target name="compile" depends="init, generate">
-    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="libs.classpath" />
+    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="lib.classpath" />
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
   <target name="main" description="execute the program" depends="compile" >
-    <jar jarfile="main.jar" basedir="${build}"/>
+    <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
   </target>
 
 
@@ -85,6 +85,15 @@
     <echo>Getting perf counters for nodes:</echo>
     <java classname="A1PerfCounterClient" classpathref="main.classpath" failonerror="true">
       <arg line="${args}"/>
+
+    </java>
+  </target>
+
+  <target name="concurrentclient" description="Run a concurrent test client">
+    <echo>Concurrent random tests:</echo>
+    <java classname="A1ConcurrentClient" classpathref="main.classpath" failonerror="true"
+      output="${build}/log/test-clients/A1ConcurrentClient.log">
+      <arg line="${args}"/>
     </java>
   </target>
 
@@ -103,7 +112,7 @@
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${gen}"/>
-    <delete file="main.jar" />
+    <delete file="ece454750s15a1.jar" />
   </target>
 
 </project>
