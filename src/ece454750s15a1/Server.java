@@ -1,7 +1,5 @@
-package ece454750a15a1;
+package ece454750s15a1;
 
-import ece454750s15a1.A1Management;
-import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

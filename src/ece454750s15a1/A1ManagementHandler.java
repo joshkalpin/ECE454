@@ -1,9 +1,5 @@
-package ece454750a15a1;
+package ece454750s15a1;
 
-import ece454750s15a1.A1Management;
-import ece454750s15a1.DiscoveryInfo;
-import ece454750s15a1.InvalidNodeException;
-import ece454750s15a1.PerfCounters;
 import org.apache.thrift.TException;
 
 import java.util.Arrays;

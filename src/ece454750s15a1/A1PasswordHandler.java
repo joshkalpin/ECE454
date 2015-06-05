@@ -1,7 +1,5 @@
-package ece454750a15a1;
+package ece454750s15a1;
 
-import ece454750s15a1.A1Password;
-import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
