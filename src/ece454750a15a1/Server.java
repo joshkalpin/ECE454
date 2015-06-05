@@ -1,9 +1,8 @@
-package a1ece454750;
+package ece454750a15a1;
 
 import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;

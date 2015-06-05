@@ -1,4 +1,4 @@
-package a1ece454750;
+package ece454750a15a1;
 
 import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
@@ -8,8 +8,6 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 
