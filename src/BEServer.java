@@ -73,7 +73,6 @@ public class BEServer extends Server {
 
             List<DiscoveryInfo> seeds = getSeeds();
             ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
-            executor.submit(passwordHandler);
 
             for (final DiscoveryInfo seed : seeds) {
                 Runnable runnable = new Runnable() {
@@ -83,8 +82,10 @@ public class BEServer extends Server {
                     }
                 };
 
-                executor.submit(runnable);
+                executor.execute(runnable);
             }
+
+            executor.execute(passwordHandler);
 
             executor.shutdown();
             executor.awaitTermination(1, TimeUnit.SECONDS);
