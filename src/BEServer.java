@@ -2,6 +2,7 @@ import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TNonblockingServer;
@@ -45,8 +46,9 @@ public class BEServer extends Server {
             A1ManagementHandler managementHandler = new A1ManagementHandler();
             A1Management.Processor managementProcessor = new A1Management.Processor(managementHandler);
             TNonblockingServer.Args managementArgs = new TNonblockingServer.Args(managementTransport);
-            final TServer managementServer =
-                new TNonblockingServer(managementArgs.processor(managementProcessor));
+            final TServer managementServer = new TNonblockingServer(
+                    managementArgs.processor(managementProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
 
             logger.info(this.getHost() + ": Starting BE management server " + this.getMPort() + "...");
 
@@ -55,8 +57,9 @@ public class BEServer extends Server {
             TNonblockingServerTransport passwordTransport = new TNonblockingServerSocket(this.getPPort());
             A1Password.Processor passwordProcessor = new A1Password.Processor(new A1PasswordHandler(managementHandler, logger));
             THsHaServer.Args passwordArgs = new THsHaServer.Args(passwordTransport);
-            final TServer passwordServer =
-                    new THsHaServer(passwordArgs.processor(passwordProcessor));
+            final TServer passwordServer = new THsHaServer(
+                    passwordArgs.processor(passwordProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
             logger.info(this.getHost() + ": Starting BE password service " + this.getPPort() + "...");
 
             Runnable passwordHandler = new Runnable() {

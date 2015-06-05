@@ -2,6 +2,7 @@ import ece454750s15a1.A1Management;
 import ece454750s15a1.A1Password;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.server.TThreadPoolServer;
@@ -62,7 +63,9 @@ public class FEServer extends Server {
 
             A1Management.Processor managementProcessor = new A1Management.Processor(managementForwarder);
             TThreadedSelectorServer.Args managementArgs = new TThreadedSelectorServer.Args(managementServerSocket);
-            final TServer managementServer = new TThreadedSelectorServer(managementArgs.processor(managementProcessor));
+            final TServer managementServer = new TThreadedSelectorServer(
+                    managementArgs.processor(managementProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
 
             logger.info(this.getHost() + ": opening " + this.getPPort() + " for password forwarder...");
 
@@ -76,7 +79,9 @@ public class FEServer extends Server {
                 threadCount = this.getNCores() * 2;
             }
             passwordArgs.maxWorkerThreads(threadCount);
-            final TServer passwordServer = new TThreadPoolServer(passwordArgs.processor(passwordProcessor));
+            final TServer passwordServer = new TThreadPoolServer(
+                    passwordArgs.processor(passwordProcessor).protocolFactory(new TCompactProtocol.Factory())
+            );
             ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
             if (!isSeed) {
                 for (final DiscoveryInfo seed : seeds) {
