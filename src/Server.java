@@ -2,6 +2,7 @@ import ece454750s15a1.A1Management;
 import ece454750s15a1.DiscoveryInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -105,7 +106,7 @@ public abstract class Server {
             logger.info("Registering with " + host + ":" + mPort);
             TTransport transport = new TFramedTransport(new TSocket(host, mPort));
             transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
+            TProtocol protocol = new TCompactProtocol(transport);
             A1Management.Client client = new A1Management.Client(protocol);
             // set timeout to 10 seconds
             // transport.setTimeout(DISCOVERY_TIMEOUT);

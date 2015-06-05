@@ -3,7 +3,7 @@ import ece454750s15a1.DiscoveryInfo;
 import ece454750s15a1.InvalidNodeException;
 import ece454750s15a1.ServiceUnavailableException;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -113,7 +113,7 @@ public class A1PasswordForwarder implements A1Password.Iface {
         logger.info("Opening connection with backend node " + info.getHost() + ":" + info.getPport());
         TTransport transport = new TFramedTransport(new TSocket(info.getHost(), info.getPport()));
         transport.open();
-        TProtocol protocol = new TBinaryProtocol(transport);
+        TProtocol protocol = new TCompactProtocol(transport);
         A1Password.Client backendClient = new A1Password.Client(protocol);
 
         if (!openConnections.containsKey(info)) {
