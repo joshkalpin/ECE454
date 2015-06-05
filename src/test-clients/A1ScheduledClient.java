@@ -1,5 +1,5 @@
 import ece454750s15a1.A1Password;
-import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -96,7 +96,7 @@ public class A1ScheduledClient {
                 System.out.println("Contacting " + connection);
                 transport = new TSocket(info[0], Integer.parseInt(info[1]));
                 transport.open();
-                TProtocol protocol = new TBinaryProtocol(transport);
+                TProtocol protocol = new TCompactProtocol(transport);
                 A1Password.Client cl = new A1Password.Client(protocol);
                 short rounds = (short)(10 + rng.nextInt(6));
                 System.out.println("password is: " + passwd);
