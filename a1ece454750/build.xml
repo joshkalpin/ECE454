@@ -8,11 +8,11 @@
   <property name="tests" location="test-clients" />
 
   <path id="lib.classpath">
-    <fileset dir="./lib">
+    <fileset dir="../lib">
       <include name="*.jar" />
     </fileset>
     <!-- TODO: unify location for jar files during link -->
-    <fileset dir="./lib">
+    <fileset dir="../lib">
       <include name="*.jar" />
     </fileset>
   </path>
