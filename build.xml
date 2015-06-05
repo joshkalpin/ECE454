@@ -52,21 +52,21 @@
 
   <target name="be" description="Run a backend server" >
     <echo>backend node:</echo>
-    <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
+    <java classname="ece454750s15a1.BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="fe" description="Run a frontend server" >
     <echo>frontend node:</echo>
-    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
+    <java classname="ece454750s15a1.FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="seed" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
-    <java classname="FEServer" classpathref="main.classpath"
+    <java classname="ece454750s15a1.FEServer" classpathref="main.classpath"
       failonerror="true" output="${build}/log/frontend/${hostname}:${mport}-seed.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
