@@ -1,0 +1,65 @@
+[main] INFO FEServer - Node created...
+[main] INFO FEServer - Starting server
+[main] INFO FEServer - Server is not seed node
+[main] INFO FEServer - localhost: opening 8730 for management server...
+[main] INFO FEServer - localhost: opening 18730 for password forwarder...
+[main] INFO FEServer - Starting password forwarder.
+[pool-3-thread-1] INFO FEServer - Registering with localhost:8726
+[pool-3-thread-1] INFO FEServer - Successfully registered with localhost:8726.
+[main] INFO FEServer - Starting management server.
+[pool-1-thread-1] INFO FEServer - 1433472516221 - Received new information about system. Updating cluster state knowledge.
+[pool-1-thread-2] INFO FEServer - 1433472519675 - Received new information about system. Updating cluster state knowledge.
+[pool-2-thread-1] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 1
+[pool-2-thread-1] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for hashing.
+[pool-2-thread-1] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-1] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 0
+[pool-2-thread-1] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-1] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-2] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 2
+[pool-2-thread-2] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for hashing.
+[pool-2-thread-2] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-2] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 1
+[pool-2-thread-2] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-2] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-3] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 0
+[pool-2-thread-3] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for hashing.
+[pool-2-thread-3] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-3] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 1
+[pool-2-thread-3] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for verifying.
+[pool-2-thread-3] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-4] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 0
+[pool-2-thread-4] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for hashing.
+[pool-2-thread-4] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-4] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 2
+[pool-2-thread-4] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-4] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 1
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for hashing.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 0
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for verifying.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 1
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for hashing.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 0
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 2
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for hashing.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 1
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 0
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for hashing.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) 1
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8728, pport:18728, ncores:2, isBEServer:true) for verifying.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18728
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 0
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for hashing.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729
+[pool-2-thread-5] INFO FEServer - Worker queued: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) 2
+[pool-2-thread-5] INFO FEServer - Attempting to connect to client: DiscoveryInfo(host:localhost, mport:8729, pport:18729, ncores:4, isBEServer:true) for verifying.
+[pool-2-thread-5] INFO FEServer - Opening connection with backend node localhost:18729

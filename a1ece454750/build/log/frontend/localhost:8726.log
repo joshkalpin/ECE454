@@ -1,0 +1,11 @@
+[main] INFO FEServer - Node created...
+[main] INFO FEServer - Starting server
+[main] INFO FEServer - Server is seed node.
+[main] INFO FEServer - Creating seed node
+[main] INFO FEServer - localhost: opening 8726 for management server...
+[main] INFO FEServer - localhost: opening 18726 for password forwarder...
+[main] INFO FEServer - Starting password forwarder.
+[main] INFO FEServer - Starting management server.
+[pool-1-thread-1] INFO FEServer - Registered frontend node
+[pool-1-thread-2] INFO FEServer - Registered backend node
+[pool-1-thread-3] INFO FEServer - Registered backend node
