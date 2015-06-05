@@ -1,5 +1,5 @@
 import ece454750s15a1.A1Management;
-import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -58,7 +58,7 @@ public class A1PerfCounterClient {
             transport = new TFramedTransport(new TSocket(info[0], Integer.parseInt(info[1])));
             System.out.println("Host: " + info[0] + " Port: " + info[1]);
             transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
+            TProtocol protocol = new TCompactProtocol(transport);
             A1Management.Client client = new A1Management.Client(protocol);
 
             System.out.println(client.getPerfCounters());
