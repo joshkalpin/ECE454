@@ -83,7 +83,7 @@ public class FEServer extends Server {
             final TServer passwordServer = new TThreadPoolServer(
                     passwordArgs.processor(passwordProcessor).protocolFactory(new TCompactProtocol.Factory())
             );
-            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size() + 1);
             if (!isSeed) {
                 for (final DiscoveryInfo seed : seeds) {
                     Runnable runnable = new Runnable() {

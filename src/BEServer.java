@@ -72,7 +72,7 @@ public class BEServer extends Server {
             logger.info("Attempting to start password service...");
 
             List<DiscoveryInfo> seeds = getSeeds();
-            ExecutorService executor = Executors.newFixedThreadPool(seeds.size());
+            ExecutorService executor = Executors.newFixedThreadPool(seeds.size() + 1);
 
             for (final DiscoveryInfo seed : seeds) {
                 Runnable runnable = new Runnable() {
