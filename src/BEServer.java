@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class BEServer extends Server {
 
@@ -85,9 +86,14 @@ public class BEServer extends Server {
                 executor.submit(runnable);
             }
 
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+
             managementServer.serve();
-        }
-        catch (TException e) {
+        } catch (TException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            logger.error("executor termination interrupted");
             e.printStackTrace();
         }
     }

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FEServer extends Server {
 
@@ -102,12 +103,18 @@ public class FEServer extends Server {
             };
             logger.info("Starting password forwarder.");
             executor.submit(passwordService);
+
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+
             logger.info("Starting management server.");
             managementServer.serve();
 
-        }
-        catch (TException e) {
+        } catch (TException e) {
             logger.error("Exception thrown");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            logger.error("executor termination interrupted");
             e.printStackTrace();
         }
     }
