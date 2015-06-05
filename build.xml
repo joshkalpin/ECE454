@@ -23,7 +23,7 @@
     <path id="main.classpath">
     <path refid="build.classpath" />
     <pathelement path="${build}" />
-    <pathelement path="main.jar" />
+    <pathelement path="ece454750s15a1.jar" />
   </path>
 
   <target name="init">
@@ -47,21 +47,21 @@
 
   <target name="be" description="Run a backend server" >
     <echo>backend node:</echo>
-    <java classname="BEServer" classpathref="ece454750s15a1.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
+    <java classname="BEServer" classpathref="main.classpath" failonerror="true" output="${build}/log/backend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="fe" description="Run a frontend server" >
     <echo>frontend node:</echo>
-    <java classname="FEServer" classpathref="ece454750s15a1.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
+    <java classname="FEServer" classpathref="main.classpath" failonerror="true"  output="${build}/log/frontend/${hostname}:${mport}.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="seed" description="Run a seed fe server" >
     <echo>front end seed server:</echo>
-    <java classname="FEServer" classpathref="ece454750s15a1.classpath"
+    <java classname="FEServer" classpathref="main.classpath"
       failonerror="true" output="${build}/log/frontend/${hostname}:${mport}-seed.log">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
@@ -69,21 +69,21 @@
 
   <target name="client" description="Run a test client" >
     <echo>Test client:</echo>
-    <java classname="A1Client" classpathref="ece454750s15a1.classpath" failonerror="true">
+    <java classname="A1Client" classpathref="main.classpath" failonerror="true">
       <arg line="-host ${hostname} -pport ${pport} -mport ${mport} -ncores ${ncores} -seeds ${seeds}"/>
     </java>
   </target>
 
   <target name="complexclient" description="Run a scheduler test client">
     <echo>Scheduled random tests:</echo>
-    <java classname="A1ScheduledClient" classpathref="ece454750s15a1.classpath" failonerror="true">
+    <java classname="A1ScheduledClient" classpathref="main.classpath" failonerror="true">
       <arg line="${args}"/>
     </java>
   </target>
 
   <target name="perfcounters" description="Run a client that gets the perf counters for all given services" >
     <echo>Getting perf counters for nodes:</echo>
-    <java classname="A1PerfCounterClient" classpathref="ece454750s15a1.classpath" failonerror="true">
+    <java classname="A1PerfCounterClient" classpathref="main.classpath" failonerror="true">
       <arg line="${args}"/>
 
     </java>
@@ -91,7 +91,7 @@
 
   <target name="concurrentclient" description="Run a concurrent test client">
     <echo>Concurrent random tests:</echo>
-    <java classname="A1ConcurrentClient" classpathref="ece454750s15a1.classpath" failonerror="true"
+    <java classname="A1ConcurrentClient" classpathref="main.classpath" failonerror="true"
       output="${build}/log/test-clients/A1ConcurrentClient.log">
       <arg line="${args}"/>
     </java>
