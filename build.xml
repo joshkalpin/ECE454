@@ -5,6 +5,7 @@
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
+  <property name="tests" location="test-clients" />
 
   <path id="lib.classpath">
     <fileset dir="./lib">
@@ -38,6 +39,10 @@
   <target name="compile" depends="init, generate">
     <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="lib.classpath" />
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
+  </target>
+
+  <target name="tests" >
+    <javac source="1.6" target="1.6" srcdir="${tests}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
   <target name="main" description="execute the program" depends="compile" >
@@ -74,14 +79,14 @@
     </java>
   </target>
 
-  <target name="complexclient" description="Run a scheduler test client">
+  <target name="complexclient" description="Run a scheduler test client" depends="tests">
     <echo>Scheduled random tests:</echo>
     <java classname="A1ScheduledClient" classpathref="main.classpath" failonerror="true">
       <arg line="${args}"/>
     </java>
   </target>
 
-  <target name="perfcounters" description="Run a client that gets the perf counters for all given services" >
+  <target name="perfcounters" description="Run a client that gets the perf counters for all given services" depends="tests" >
     <echo>Getting perf counters for nodes:</echo>
     <java classname="A1PerfCounterClient" classpathref="main.classpath" failonerror="true">
       <arg line="${args}"/>
@@ -89,7 +94,7 @@
     </java>
   </target>
 
-  <target name="concurrentclient" description="Run a concurrent test client">
+  <target name="concurrentclient" description="Run a concurrent test client" depends="tests">
     <echo>Concurrent random tests:</echo>
     <java classname="A1ConcurrentClient" classpathref="main.classpath" failonerror="true"
       output="${build}/log/test-clients/A1ConcurrentClient.log">

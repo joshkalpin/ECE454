@@ -1,4 +1,4 @@
-import ece454750s15a1.A1Password;
+import ece454750s15a1.*;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
