@@ -34,6 +34,8 @@ pdfauthor={John Zanutto}]
 
 \textsc{John Zanutto (20418726|jzanutto)}
 
+\textsc{Joshua Kalpin (20414492|jkalpin)}
+
 \duedate
 \vspace*{\fill}
 \end{titlepage}
@@ -45,6 +47,141 @@ Using the same assumption as above, the Client takes 100ms to send a request to 
 \subsection*{c) RPC Throughput}
 Let's consider the case of several incoming requests from multiple clients. Assuming we can completely fill the worker threads with work, then we can take on about four requests at a time. Since each request, as well as network I/O is done in parallel, the only bottleneck would be the network I/O. Assuming incoming requests cost nothing on the server throughput (i.e. the 100ms sending delay doesn't monopolize the network I/O thread), then we can take as many requests as we can process, however, when returning requests, each response must monopolize the network thread for 100ms to return the message plus 100ms to receive an acknowledgement that the Client has received the message from the Server. If we assume that the Server is constantly backlogged with work and does not have to wait for additional work, that means the worker threads are always waiting on the networking thread to finish, meaning we can get 100ms + 100ms = 200ms for each response output. We can only receive work in between that period. This means that we can respond to about five requests per second, since we can do work for multiple other requests while we wait on network I/O to send a request back to the Client.
 \section{NTP}
+
+\subsection*{a)}
+
+\begin{align*}
+    dT_{res} \in \left[8, 12 \right] \\
+    dT_{req} \in \left[8, 12 \right] \\    
+    x = \frac{dT_{res}}{2} \in \left[4, 6 \right] \\
+    y = \frac{dT_{req}}{2} \in \left[4, 6 \right]\\
+    \theta = x - y
+\end{align*}
+
+Bound $\theta$:
+
+\begin{align*}
+    4 &\le \theta + x \le 6 \\
+    4-x &\le \theta \le 6 - x \\
+    -2 &\le \theta \le 2 \\
+\end{align*}
+
+Take the convolution of the two variables:
+
+\begin{align*}
+    f_\theta(\theta) = \int^{\infty}_{-\infty} f_x(\theta + x)f_y(x)dx \\
+    f_\theta(\theta) = \int^{\infty}_{-\infty} f_x(x)dx
+\end{align*}
+
+For $-2 \le \theta < 0$:
+
+\begin{align*}
+\theta + x \ge 4 \\
+x \ge 4 - \theta
+\end{align*}
+
+Taking the integral
+
+\begin{align*}
+    f_\theta(\theta) = \int^{8 - \theta}_{6} dx \\
+    &= 8 - \theta - 6 \\
+    &= 2 - \theta
+\end{align*}
+
+For $0 \le \theta \le 2$:
+
+\begin{align*}
+\theta + x \le 6 \\
+x \le 6 - \theta
+\end{align*}
+
+Taking the integral
+
+\begin{align*}
+    f_\theta(\theta) = \int^{4}_{\theta - 2} dx \\
+    &= 4 - \theta + 2 \\
+    &= 2 + \theta
+\end{align*}
+
+Therefore
+
+\[ f_\theta(\theta) =  \begin{cases} 
+      2 - \theta & -2 \le \theta < 0 \\
+      2 + \theta & 0 \le \theta \le 2 \\
+      0 & else
+   \end{cases}
+\]
+
+\subsection*{b)}
+
+\begin{align*}
+    dT_{res} \in \left[8, 12 \right] \\
+    dT_{req} \in \left[8, 12 \right] \\    
+    x = \frac{dT_{res}}{2} \in \left[4, 6 \right] \\
+    y = \frac{dT_{req}}{2} \in \left[4, 6 \right]\\
+    \delta = x + y
+\end{align*}
+
+Bound $\delta$:
+
+\begin{align*}
+    4 &\le \delta - x \le 6 \\
+    4+x &\le \delta \le 6 + x \\
+    8 &\le \theta \le 12 \\
+\end{align*}
+
+Take the convolution of the two variables:
+
+\begin{align*}
+    f_\delta(\delta) = \int^{\infty}_{-\infty} f_x(\delta - x)f_y(x)dx \\
+    f_\delta(\delta) = \int^{\infty}_{-\infty} f_x(x)dx
+\end{align*}
+
+For $8 \le \delta < 10$:
+
+\begin{align*}
+\delta - x \ge 4 \\
+x \le \delta - 4
+\end{align*}
+
+Taking the integral
+
+\begin{align*}
+    f_\delta(\delta) = \int^{\delta - 4}_{4} dx \\
+    &= \delta - 4 - 4 \\
+    &= \delta - 8
+\end{align*}
+
+For $10 \le \theta \le 12$:
+
+\begin{align*}
+\delta - x \le 6 \\
+x \ge \delta - 6
+\end{align*}
+
+Taking the integral
+
+\begin{align*}
+    f_\delta(\delta) = \int^{6}_{\delta - 6} dx \\
+    &= 6 - \delta + 6 \\
+    &= 12- \delta
+\end{align*}
+
+Therefore
+
+\[ f_\delta(\delta) =  \begin{cases} 
+      \delta - 8 & 8 \le \delta < 10 \\
+      12 - \delta & 10 \le \delta \le 12 \\
+      0 & else
+   \end{cases}
+\]
+
+\subsection*{c)}
+
+To find the probability find the area under the curve from 0.9 to 1.1 of $f_\delta$.
+
+\[P(\theta \in \left[ 0.9, 1.1 \right]) = \int^{1.1}_{0.9} (2 - \theta) \ d\theta = 0.2\]
+
 \section{Logical Clocks}
 \subsection*{a)}
 \begin{enumerate}
