@@ -1,0 +1,47 @@
+<project name="a2" default="a2" basedir=".">
+
+  <description>ECE 454 / 750 Assignment 2 Part B</description>
+
+  <property name="src" location="src" />
+  <property name="build" location="build" />
+
+  <path id="build.classpath">
+  </path>
+
+  <path id="a2.classpath">
+    <path refid="build.classpath" />
+    <pathelement path="${build}" />
+    <pathelement path="a2.jar" />
+  </path>
+  
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/log"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <javac source="1.6" target="1.6" debug="true" includeantruntime="false" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
+  </target>
+
+  <target name="test" depends="a2" />
+
+  <target name="a2" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if samplegraph.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}" />
+    <delete dir="${gen}"/>
+    <delete file="a2.jar" />
+    <delete file="output.txt" />
+    <delete file="ece454750a2.tar.gz" />
+  </target>
+</project>

@@ -8,8 +8,7 @@
 *.ear
 
 # Project Specific Files #
-ece454750s15a1.jar
-gen-java/
+*.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -18,3 +17,6 @@ hs_err_pid*
 *.out
 *.aux
 *.synctex.gz
+
+# test output files
+output.txt
