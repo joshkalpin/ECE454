@@ -1,0 +1,47 @@
+new algorithm:
+
+ant -Dncores=1 -Dif="../../../A2/graphs/graph1M_B.txt" test
+Buildfile: /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/build.xml
+
+init:
+
+compile:
+    [javac] Compiling 1 source file to /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/build
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 1.6
+    [javac] 1 warning
+
+test:
+      [jar] Building jar: /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/a2.jar
+     [echo] A2 pre submission tests
+     [java] Running on 1 cores
+     [java] Reading data from ../../../A2/graphs/graph1M_B.txt
+     [java] Found graph with 1000000 vertices and 10000000 edges
+     [java] Done in 41064ms
+     [java] Group members: [jkalpin, jzanutto]
+
+BUILD SUCCESSFUL
+Total time: 42 seconds
+
+old algorithm:
+
+ant -Dncores=1 -Dif="../../../A2/graphs/graph1M_B.txt" test
+Buildfile: /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/build.xml
+
+init:
+
+compile:
+    [javac] Compiling 1 source file to /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/build
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 1.6
+    [javac] 1 warning
+
+test:
+      [jar] Building jar: /Users/John/Documents/Undergrad/4A/ECE454/Assignments/A2/B/a2.jar
+     [echo] A2 pre submission tests
+     [java] Running on 1 cores
+     [java] Reading data from ../../../A2/graphs/graph1M_B.txt
+     [java] Found graph with 1000000 vertices and 10000000 edges
+     [java] Done in 2425067ms
+     [java] Group members: [jkalpin, jzanutto]
+
+BUILD SUCCESSFUL
+Total time: 40 minutes 26 seconds

@@ -13,7 +13,7 @@
     <pathelement path="${build}" />
     <pathelement path="a2.jar" />
   </path>
-  
+
   <target name="init">
     <tstamp />
     <mkdir dir="${build}"/>
@@ -24,7 +24,7 @@
     <javac source="1.6" target="1.6" debug="true" includeantruntime="false" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
-  <target name="test" depends="a2" />
+  <!-- <target name="test" depends="a2" /> -->
 
   <target name="a2" description="Run the solution" depends="compile">
     <jar jarfile="a2.jar" basedir="${build}"/>
@@ -33,6 +33,17 @@
       <java classname="ece454750s15a2.TriangleCount"
             classpathref="a2.classpath" failonerror="true">
         <arg line="-ncores 1 -if samplegraph.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+
+  <target name="test" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 pre submission tests</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores ${ncores} -if ${if} -of output.txt"/>
       </java>
     </sequential>
   </target>
