@@ -54,16 +54,14 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> SingleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
-        Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
+        Set<BetterTriangle> triangles = new TreeSet<BetterTriangle>(new TriangleComparator());
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
                 for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
                     if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
                         BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
-                        if (!triangles.contains(t)) {
-                            triangles.add(t);
-                        }
+                        triangles.add(t);
                     }
                 }
             }
@@ -93,7 +91,7 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> sortAndConvertResults(List<BetterTriangle> triangles) {
-        Collections.sort(triangles, new TriangleComparator());
+//        Collections.sort(triangles, new TriangleComparator());
         List<Triangle> ret = new ArrayList<Triangle>();
         for (BetterTriangle t : triangles) {
             ret.add(t.toTriangle());
