@@ -106,30 +106,35 @@ public class TriangleCountImpl {
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         String strLine = br.readLine();
+
         if (!strLine.contains("vertices") || !strLine.contains("edges")) {
             System.err.println("Invalid graph file format. Offending line: " + strLine);
             System.exit(-1);
         }
-        String parts[] = strLine.split(", ");
-        int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
-        int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+
+        String parts[] = strLine.split(" ");
+        int numVertices = Integer.parseInt(parts[0]);
+        int numEdges = Integer.parseInt(parts[2]);
         System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
         this.numVertices = numVertices;
 
         List<HashSet<Integer>> adjacencyList = new ArrayList<HashSet<Integer>>(numVertices);
-        for (int i = 0; i < numVertices; i++) {
-            adjacencyList.add(new HashSet<Integer>());
-        }
+
         while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+            HashSet<Integer> adjSet = new HashSet<Integer>();
             parts = strLine.split(": ");
+
             int vertex = Integer.parseInt(parts[0]);
             if (parts.length > 1) {
                 parts = parts[1].split(" +");
                 for (String part : parts) {
-                    adjacencyList.get(vertex).add(Integer.parseInt(part));
+                    adjSet.add(Integer.parseInt(part));
                 }
             }
+
+            adjacencyList.add(vertex, adjSet);
         }
+
         br.close();
         return adjacencyList;
     }
