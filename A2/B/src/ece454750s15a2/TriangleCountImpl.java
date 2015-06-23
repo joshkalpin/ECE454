@@ -20,7 +20,7 @@ public class TriangleCountImpl {
     private byte[] input;
     private int numCores;
     private int numVertices;
-    public static final int THREADS_PER_CORE = 1.0;
+    public static final int THREADS_PER_CORE = 1;
 
     public TriangleCountImpl(byte[] input, int numCores) {
         this.input = input;
@@ -38,11 +38,9 @@ public class TriangleCountImpl {
         List<Triangle> ret = new ArrayList<Triangle>();
         List<HashSet<Integer>> adjacencyList = getAdjacencyList(input);
         if (numCores == 1) {
-            ret = SingleThreadedEnumerateTriangles(adjacencyList);
-            //ret = NaiveEnumerateTriangles(adjacencyList);
+            ret = singleThreadedEnumerateTriangles(adjacencyList);
+            //ret = naiveEnumerateTriangles(adjacencyList);
         } else {
-            long mappers = Math.round((Math.ceil((double)numVertices / ((double)numCores * THREADS_PER_CORE))));
-            System.out.println("Number of mappers chosen: " + mappers);
             // more focused solution that splits vertices evenly among cores
             // Three phases:
             // (Phase 1)
@@ -63,10 +61,10 @@ public class TriangleCountImpl {
         List<Callable<Triad>> mapJobs = new ArrayList<Callable<Triad>>();
 
         List<Future<Triad>> triadResults = service.invokeAll(mapJobs);
-
+        return null;
     }
 
-    public List<Triangle> SingleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
+    public List<Triangle> singleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
         Set<BetterTriangle> triangles = new TreeSet<BetterTriangle>(new TriangleComparator());
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
@@ -82,7 +80,7 @@ public class TriangleCountImpl {
         return sortAndConvertResults(new ArrayList<BetterTriangle>(triangles));
     }
 
-    public List<Triangle> NaiveEnumerateTriangles(List<HashSet<Integer>> graph) {
+    public List<Triangle> naiveEnumerateTriangles(List<HashSet<Integer>> graph) {
         // this code is single-threaded and ignores numCores
         List<BetterTriangle> triangles = new ArrayList<BetterTriangle>();
         // naive triangle counting algorithm
@@ -148,15 +146,5 @@ public class TriangleCountImpl {
 
         br.close();
         return adjacencyList;
-    }
-
-    private class Triad {
-        public int node, neighbour1, neighbour2;
-
-        public Triad(int node, int neighbour1, int neighbour2) {
-            this.node = node;
-            this.neighbour1 = neighbour1;
-            this.neighbour2 = neighbour2;
-        }
     }
 }

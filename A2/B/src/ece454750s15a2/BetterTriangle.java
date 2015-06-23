@@ -49,7 +49,7 @@ public class BetterTriangle {
     @Override
     public int hashCode() {
         int result = 31;
-        int prime = 127;
+        int prime = 131;
         result = prime * result + x;
         result = prime * result + y;
         result = prime * result + z;
