@@ -54,7 +54,7 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> SingleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
-        Set<BetterTriangle> triangles = new TreeSet<BetterTriangle>(new TriangleComparator());
+        Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
