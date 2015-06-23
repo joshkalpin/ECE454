@@ -35,33 +35,32 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException {
-        Vector<Triangle> ret = new Vector<Triangle>();
-        List<Set<Integer>> adjacencyList = getAdjacencyList(input);
-        ApexMapper mapper = new ApexMapper(1, adjacencyList.get(1));
-        List<Edge> mappedResult = mapper.call();
-//        System.out.println(mappedResult);
-        TriadReducer reducer = new TriadReducer(1, mappedResult);
-        List<Triad> triads = reducer.call();
-//        System.out.println(triads);
-        TriangleReducer tReducer = new TriangleReducer(triads, ret, adjacencyList);
-        tReducer.run();
-//        System.out.println(ret);
 
-//        if (numCores == 1) {
-//            ret = singleThreadedEnumerateTriangles(adjacencyList);
-//            //ret = naiveEnumerateTriangles(adjacencyList);
-//        } else {
-//            // more focused solution that splits vertices evenly among cores
-//            // Three phases:
-//            // (Phase 1)
-//            // Map vertices to their respective adjacent vertices (i.e. triads)
-//            // (Apex vertex,adjacent vertices)
-//            // (Phase 2)
-//            // Check for duplicate vertices on overlapping spaces under each main vertex set selected
-//            // (Phase 3)
-//            // Trivially calculate triad groupings
-//        }
-
+        List<Triangle> ret = new ArrayList<Triangle>();
+        List<HashSet<Integer>> adjacencyList = getAdjacencyList(input);
+        if (numCores == 1) {
+            ret = singleThreadedEnumerateTriangles(adjacencyList);
+            // ret = naiveEnumerateTriangles(adjacencyList);
+        } else {
+            ApexMapper mapper = new ApexMapper(1, adjacencyList.get(1));
+            List<Edge> mappedResult = mapper.call();
+            // System.out.println(mappedResult);
+            TriadReducer reducer = new TriadReducer(1, mappedResult);
+            List<Triad> triads = reducer.call();
+            // System.out.println(triads);
+            TriangleReducer tReducer = new TriangleReducer(triads, ret, adjacencyList);
+            tReducer.run();
+            System.out.println(ret);
+            // more focused solution that splits vertices evenly among cores
+            // Three phases:
+            // (Phase 1)
+            // Map vertices to their respective adjacent vertices (i.e. triads)
+            // (Apex vertex,adjacent vertices)
+            // (Phase 2)
+            // Check for duplicate vertices on overlapping spaces under each main vertex set selected
+            // (Phase 3)
+            // Trivially calculate triad groupings
+        }
         return ret;
     }
 
@@ -75,10 +74,13 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> singleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
-        Set<BetterTriangle> triangles = new TreeSet<BetterTriangle>(new TriangleComparator());
+        Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
+                if (i > adjacencyList.get(node)) {
+                    continue;
+                }
                 for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
                     if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
                         BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
@@ -87,7 +89,7 @@ public class TriangleCountImpl {
                 }
             }
         }
-        return sortAndConvertResults(new ArrayList<BetterTriangle>(triangles));
+        return convertResults(new ArrayList<BetterTriangle>(triangles));
     }
 
     public List<Triangle> naiveEnumerateTriangles(List<HashSet<Integer>> graph) {
@@ -108,11 +110,11 @@ public class TriangleCountImpl {
                 }
             }
         }
-        return sortAndConvertResults(triangles);
+        return convertResults(triangles);
     }
 
-    public List<Triangle> sortAndConvertResults(List<BetterTriangle> triangles) {
-//        Collections.sort(triangles, new TriangleComparator());
+    public List<Triangle> convertResults(List<BetterTriangle> triangles) {
+        // Collections.sort(triangles, new TriangleComparator());
         List<Triangle> ret = new ArrayList<Triangle>();
         for (BetterTriangle t : triangles) {
             ret.add(t.toTriangle());
