@@ -11,12 +11,16 @@ package ece454750s15a2;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class TriangleCountImpl {
     private byte[] input;
     private int numCores;
     private int numVertices;
-    public static final double THREADS_PER_CORE = 1.0;
+    public static final int THREADS_PER_CORE = 1.0;
 
     public TriangleCountImpl(byte[] input, int numCores) {
         this.input = input;
@@ -51,6 +55,15 @@ public class TriangleCountImpl {
         }
 
         return ret;
+    }
+
+    private List<Triangle> multiThreadedEnumerateTriangles(List<HashSet<Integer>> graph) throws InterruptedException {
+        ExecutorService service = Executors.newFixedThreadPool(this.numCores * THREADS_PER_CORE);
+
+        List<Callable<Triad>> mapJobs = new ArrayList<Callable<Triad>>();
+
+        List<Future<Triad>> triadResults = service.invokeAll(mapJobs);
+
     }
 
     public List<Triangle> SingleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
@@ -135,5 +148,15 @@ public class TriangleCountImpl {
 
         br.close();
         return adjacencyList;
+    }
+
+    private class Triad {
+        public int node, neighbour1, neighbour2;
+
+        public Triad(int node, int neighbour1, int neighbour2) {
+            this.node = node;
+            this.neighbour1 = neighbour1;
+            this.neighbour2 = neighbour2;
+        }
     }
 }
