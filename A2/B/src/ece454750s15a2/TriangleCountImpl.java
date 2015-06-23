@@ -35,22 +35,32 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException {
-        List<Triangle> ret = new ArrayList<Triangle>();
-        List<HashSet<Integer>> adjacencyList = getAdjacencyList(input);
-        if (numCores == 1) {
-            ret = singleThreadedEnumerateTriangles(adjacencyList);
-            //ret = naiveEnumerateTriangles(adjacencyList);
-        } else {
-            // more focused solution that splits vertices evenly among cores
-            // Three phases:
-            // (Phase 1)
-            // Map vertices to their respective adjacent vertices (i.e. triads)
-            // (Apex vertex,adjacent vertices)
-            // (Phase 2)
-            // Check for duplicate vertices on overlapping spaces under each main vertex set selected
-            // (Phase 3)
-            // Trivially calculate triad groupings
-        }
+        Vector<Triangle> ret = new Vector<Triangle>();
+        List<Set<Integer>> adjacencyList = getAdjacencyList(input);
+        ApexMapper mapper = new ApexMapper(1, adjacencyList.get(1));
+        List<Edge> mappedResult = mapper.call();
+//        System.out.println(mappedResult);
+        TriadReducer reducer = new TriadReducer(1, mappedResult);
+        List<Triad> triads = reducer.call();
+//        System.out.println(triads);
+        TriangleReducer tReducer = new TriangleReducer(triads, ret, adjacencyList);
+        tReducer.run();
+//        System.out.println(ret);
+
+//        if (numCores == 1) {
+//            ret = singleThreadedEnumerateTriangles(adjacencyList);
+//            //ret = naiveEnumerateTriangles(adjacencyList);
+//        } else {
+//            // more focused solution that splits vertices evenly among cores
+//            // Three phases:
+//            // (Phase 1)
+//            // Map vertices to their respective adjacent vertices (i.e. triads)
+//            // (Apex vertex,adjacent vertices)
+//            // (Phase 2)
+//            // Check for duplicate vertices on overlapping spaces under each main vertex set selected
+//            // (Phase 3)
+//            // Trivially calculate triad groupings
+//        }
 
         return ret;
     }
@@ -111,7 +121,7 @@ public class TriangleCountImpl {
     }
 
 
-    public List<HashSet<Integer>> getAdjacencyList(byte[] data) throws IOException {
+    public List<Set<Integer>> getAdjacencyList(byte[] data) throws IOException {
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         String strLine = br.readLine();
@@ -127,10 +137,10 @@ public class TriangleCountImpl {
         System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
         this.numVertices = numVertices;
 
-        List<HashSet<Integer>> adjacencyList = new ArrayList<HashSet<Integer>>(numVertices);
+        List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
 
         while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
-            HashSet<Integer> adjSet = new HashSet<Integer>();
+            Set<Integer> adjSet = new HashSet<Integer>();
             parts = strLine.split(": ");
 
             int vertex = Integer.parseInt(parts[0]);

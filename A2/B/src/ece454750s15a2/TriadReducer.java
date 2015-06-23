@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class TriadReducer implements Callable<Map<Edge, Triad>> {
+public class TriadReducer implements Callable<List<Triad>> {
 
     List<Edge> edgeList;
     Integer node;
@@ -15,8 +15,8 @@ public class TriadReducer implements Callable<Map<Edge, Triad>> {
 
     }
 
-    public Map<Edge, Triad> call() {
-        Map<Edge, Triad> output = new HashMap<Edge, Triad>();
+    public List<Triad> call() {
+        List<Triad> output = new ArrayList<Triad>();
         for (int i = 0; i < edgeList.size() - 1; i++) {
             Edge e1 = edgeList.get(i);
             for (int j = i + 1; j < edgeList.size(); j++) {
@@ -27,8 +27,7 @@ public class TriadReducer implements Callable<Map<Edge, Triad>> {
                 } else {
                     t = new Triad(node, e1.getHigher(), e2.getHigher());
                 }
-                Edge e3 = new Edge(t.getLeft(), t.getRight());
-                output.put(e3, t);
+                output.add(t);
             }
         }
         return output;

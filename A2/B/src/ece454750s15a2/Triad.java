@@ -22,4 +22,9 @@ public class Triad {
     public int getRight() {
         return rightNeighbour;
     }
+
+    @Override
+    public String toString() {
+        return "Apex: " + apex +  "Left: " + leftNeighbour + ", Right: " + rightNeighbour;
+    }
 }

@@ -27,11 +27,17 @@ public class Edge {
         return false;
     }
 
+    @Override
     public int hashCode() {
         int result = 37;
         int prime = 131;
         result = prime * result + getLower();
         result = prime * result + getHigher();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Lower: " + lower + ", Higher: " + higher;
     }
 }
