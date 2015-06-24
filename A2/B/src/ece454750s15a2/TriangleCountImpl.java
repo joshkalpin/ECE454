@@ -37,7 +37,7 @@ public class TriangleCountImpl {
     public List<Triangle> enumerateTriangles() throws IOException {
 
         List<Triangle> ret = new ArrayList<Triangle>();
-        List<HashSet<Integer>> adjacencyList = getAdjacencyList(input);
+        List<Set<Integer>> adjacencyList = getAdjacencyList(input);
         if (numCores == 1) {
             ret = singleThreadedEnumerateTriangles(adjacencyList);
             // ret = naiveEnumerateTriangles(adjacencyList);
@@ -64,7 +64,7 @@ public class TriangleCountImpl {
         return ret;
     }
 
-    private List<Triangle> multiThreadedEnumerateTriangles(List<HashSet<Integer>> graph) throws InterruptedException {
+    private List<Triangle> multiThreadedEnumerateTriangles(List<Set<Integer>> graph) throws InterruptedException {
         ExecutorService service = Executors.newFixedThreadPool(this.numCores * THREADS_PER_CORE);
 
         List<Callable<Triad>> mapJobs = new ArrayList<Callable<Triad>>();
@@ -73,7 +73,7 @@ public class TriangleCountImpl {
         return null;
     }
 
-    public List<Triangle> singleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
+    public List<Triangle> singleThreadedEnumerateTriangles(List<Set<Integer>> graph) {
         Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
