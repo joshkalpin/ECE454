@@ -53,9 +53,11 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> singleThreadedEnumerateTriangles(List<Set<Integer>> graph) {
+
         Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
+            Collections.sort(adjacencyList);
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
                 if (i > adjacencyList.get(node)) {
                     continue;
@@ -75,30 +77,21 @@ public class TriangleCountImpl {
         Set<BetterTriangle> triangles;
         long partitionSize = Math.round((Math.ceil((double)graph.size() / ((double)ncores))));
         int partitions = 0;
-        // List<Future<Set<BetterTriangle>>> futures = new ArrayList<Future<Set<BetterTriangle>>>();
         ExecutorService service = Executors.newFixedThreadPool(ncores);
         System.out.println("Graph size: " + graph.size());
+
         while (partitions < ncores) {
             long startIndex = partitionSize * partitions;
             long endIndex = Math.min(graph.size(), (partitionSize * (partitions + 1)));
             System.out.println("Start index: " + startIndex);
             System.out.println("End index: " + endIndex);
             PartitionedTriangleCounter counter = new PartitionedTriangleCounter(graph, startIndex, endIndex);
-            // futures.add(service.submit(counter));
             service.submit(counter);
             ++partitions;
         }
-        // for (Future<Set<BetterTriangle>> future : futures) {
-        //     Set<BetterTriangle> partialResult = new HashSet();
-        //     try {
-        //         partialResult = future.get();
-        //     } catch (Exception e) {
-        //         System.err.println("Task cancelled.");
-        //         System.exit(0);
-        //     }
-        //     triangles.addAll(partialResult);
-        // }
+
         service.shutdown();
+
         try {
 
             service.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
@@ -132,7 +125,6 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> convertResults(Collection<BetterTriangle> triangles) {
-        // Collections.sort(triangles, new TriangleComparator());
         List<Triangle> ret = new ArrayList<Triangle>(triangles.size());
         for (BetterTriangle t : triangles) {
             ret.add(t.toTriangle());
@@ -150,19 +142,16 @@ public class TriangleCountImpl {
         int numVertices = Integer.parseInt(strLine.split(" ")[0]);
         List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
 
+        Set<Integer> adjSet;
         while ((strLine = br.readLine()) != null && !strLine.equals("")) {
-            Set<Integer> adjSet;
             String[] parts = strLine.split(": ");
-
+            StringTokenizer tokenizer = new StringTokenizer(parts[1], " +");
             int vertex = Integer.parseInt(parts[0]);
+            adjSet = new HashSet<Integer>();
             if (parts.length > 1) {
-                parts = parts[1].split(" +");
-                adjSet = new HashSet<Integer>(parts.length);
-                for (String part : parts) {
-                    adjSet.add(Integer.parseInt(part));
+                while (tokenizer.hasMoreTokens()) {
+                    adjSet.add(Integer.valueOf(tokenizer.nextToken()));
                 }
-            } else {
-                adjSet = new HashSet<Integer>();
             }
 
             adjacencyList.add(vertex, adjSet);
