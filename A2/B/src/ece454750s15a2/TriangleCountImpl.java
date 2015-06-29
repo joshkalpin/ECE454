@@ -96,13 +96,10 @@ public class TriangleCountImpl {
         long partitionSize = Math.round((Math.ceil((double)graph.size() / ((double)ncores))));
         int partitions = 0;
         ExecutorService service = Executors.newFixedThreadPool(ncores);
-        System.out.println("Graph size: " + graph.size());
 
         while (partitions < ncores) {
             long startIndex = partitionSize * partitions;
             long endIndex = Math.min(graph.size(), (partitionSize * (partitions + 1)));
-            System.out.println("Start index: " + startIndex);
-            System.out.println("End index: " + endIndex);
             PartitionedTriangleCounter counter = new PartitionedTriangleCounter(graph, startIndex, endIndex);
             service.submit(counter);
             ++partitions;
