@@ -21,3 +21,7 @@ hs_err_pid*
 # test output files
 output*.txt
 *.sort
+
+# test input files
+graph*.txt
+
