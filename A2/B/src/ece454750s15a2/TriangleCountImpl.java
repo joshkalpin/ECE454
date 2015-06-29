@@ -57,11 +57,29 @@ public class TriangleCountImpl {
         Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
-            Collections.sort(adjacencyList);
+            // Collections.sort(adjacencyList);
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
+                // skip this entire node if we're larger than the largest value
+                // if (i > adjacencyList.get(adjacencyList.size() - 1)) {
+                //     ++i;
+                // } else if (i > adjacencyList.get(node)) {
                 if (i > adjacencyList.get(node)) {
                     continue;
+                    // int j = 1;
+                    // while (i > adjacencyList.get(node) && node < adjacencyList.size() - 1) {
+                    //     node = node + j;
+                    //     j = j * 2;
+                    //     // if we overshoot, restart the gallop
+                    //     if (node >= adjacencyList.size() - 1 || i < adjacencyList.get(node)) {
+                    //         node = node - (j / 2);
+                    //         j = 1;
+                    //     }
+                    //     if (i > adjacencyList.get(node) && i < adjacencyList.get(node + 1)) {
+                    //         break;
+                    //     }
+                    // }
                 }
+                // implementing a gallop search on results to find start point
                 for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
                     if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
                         BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
