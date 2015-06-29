@@ -163,21 +163,26 @@ public class TriangleCountImpl {
         Set<Integer> adjSet;
         while ((strLine = br.readLine()) != null && !strLine.equals("")) {
             String[] parts = strLine.split(": ");
-            StringTokenizer tokenizer = new StringTokenizer(parts[1], " +");
             int vertex = Integer.parseInt(parts[0]);
             adjSet = new HashSet<Integer>();
+            // StringTokenizer tokenizer = new StringTokenizer(parts[1], " +");
+            List<Integer> list = new ArrayList<Integer>();
+            int pos = 0, end;
             if (parts.length > 1) {
-                while (tokenizer.hasMoreTokens()) {
-                    adjSet.add(Integer.valueOf(tokenizer.nextToken()));
+                while ((end = parts[1].indexOf(' ', pos)) >= 0) {
+                    adjSet.add(Integer.valueOf(parts[1].substring(pos, end)));
+                    pos = end + 1;
                 }
+                // while (tokenizer.hasMoreTokens()) {
+                //     adjSet.add(Integer.valueOf(tokenizer.nextToken()));
+                // }
             }
 
             adjacencyList.add(vertex, adjSet);
         }
 
         br.close();
-        long endTime = System.currentTimeMillis();
-        long diffTime = endTime - startTime;
+        long diffTime = System.currentTimeMillis() - startTime;
         System.out.println("Parsing took " + diffTime + "ms");
         return adjacencyList;
     }

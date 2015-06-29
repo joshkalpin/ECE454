@@ -19,6 +19,9 @@ public class PartitionedTriangleCounter implements Runnable {
         for (int i = (int)startIndex; i < (int)endIndex; i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
+                if (i > adjacencyList.get(node)) {
+                    continue;
+                }
                 for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
                     if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
                         BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
