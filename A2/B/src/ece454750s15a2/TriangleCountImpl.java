@@ -32,7 +32,7 @@ public class TriangleCountImpl {
 
     public List<Triangle> enumerateTriangles() throws IOException {
         List<Triangle> ret = new ArrayList<Triangle>();
-        List<HashSet<Integer>> adjacencyList = getAdjacencyList(input);
+        List<Set<Integer>> adjacencyList = getAdjacencyList(input);
         if (numCores == 1) {
             ret = singleThreadedEnumerateTriangles(adjacencyList);
             // ret = naiveEnumerateTriangles(adjacencyList);
@@ -53,7 +53,7 @@ public class TriangleCountImpl {
         return ret;
     }
 
-    public List<Triangle> singleThreadedEnumerateTriangles(List<HashSet<Integer>> graph) {
+    public List<Triangle> singleThreadedEnumerateTriangles(List<Set<Integer>> graph) {
         Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
         for (int i = 0; i < graph.size(); i++) {
             List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
@@ -69,10 +69,10 @@ public class TriangleCountImpl {
                 }
             }
         }
-        return convertResults(new ArrayList<BetterTriangle>(triangles));
+        return convertResults(triangles);
     }
 
-    public List<Triangle> naiveEnumerateTriangles(List<HashSet<Integer>> graph) {
+    public List<Triangle> naiveEnumerateTriangles(List<Set<Integer>> graph) {
         // this code is single-threaded and ignores numCores
         List<BetterTriangle> triangles = new ArrayList<BetterTriangle>();
         // naive triangle counting algorithm
@@ -93,9 +93,9 @@ public class TriangleCountImpl {
         return convertResults(triangles);
     }
 
-    public List<Triangle> convertResults(List<BetterTriangle> triangles) {
+    public List<Triangle> convertResults(Collection<BetterTriangle> triangles) {
         // Collections.sort(triangles, new TriangleComparator());
-        List<Triangle> ret = new ArrayList<Triangle>();
+        List<Triangle> ret = new ArrayList<Triangle>(triangles.size());
         for (BetterTriangle t : triangles) {
             ret.add(t.toTriangle());
         }
@@ -103,34 +103,27 @@ public class TriangleCountImpl {
     }
 
 
-    public List<HashSet<Integer>> getAdjacencyList(byte[] data) throws IOException {
+    public List<Set<Integer>> getAdjacencyList(byte[] data) throws IOException {
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         String strLine = br.readLine();
 
-        if (!strLine.contains("vertices") || !strLine.contains("edges")) {
-            System.err.println("Invalid graph file format. Offending line: " + strLine);
-            System.exit(-1);
-        }
+        this.numVertices = Integer.parseInt(strLine.split(" ")[0]);
+        List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(this.numVertices);
 
-        String parts[] = strLine.split(" ");
-        int numVertices = Integer.parseInt(parts[0]);
-        int numEdges = Integer.parseInt(parts[2]);
-        System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
-        this.numVertices = numVertices;
-
-        List<HashSet<Integer>> adjacencyList = new ArrayList<HashSet<Integer>>(numVertices);
-
-        while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
-            HashSet<Integer> adjSet = new HashSet<Integer>();
-            parts = strLine.split(": ");
+        while ((strLine = br.readLine()) != null && !strLine.equals("")) {
+            Set<Integer> adjSet;
+            String[] parts = strLine.split(": ");
 
             int vertex = Integer.parseInt(parts[0]);
             if (parts.length > 1) {
                 parts = parts[1].split(" +");
+                adjSet = new HashSet<Integer>(parts.length);
                 for (String part : parts) {
                     adjSet.add(Integer.parseInt(part));
                 }
+            } else {
+                adjSet = new HashSet<Integer>();
             }
 
             adjacencyList.add(vertex, adjSet);
