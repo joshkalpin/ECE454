@@ -72,10 +72,10 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> simpleMultiEnumerateTriangles(List<Set<Integer>> graph, int ncores) {
-        Set<BetterTriangle> triangles = Collections.newSetFromMap(new ConcurrentHashMap<BetterTriangle, Boolean>());
+        Set<BetterTriangle> triangles;
         long partitionSize = Math.round((Math.ceil((double)graph.size() / ((double)ncores))));
         int partitions = 0;
-        List<Future<Set<BetterTriangle>>> futures = new ArrayList<Future<Set<BetterTriangle>>>();
+        // List<Future<Set<BetterTriangle>>> futures = new ArrayList<Future<Set<BetterTriangle>>>();
         ExecutorService service = Executors.newFixedThreadPool(ncores);
         System.out.println("Graph size: " + graph.size());
         while (partitions < ncores) {
@@ -83,52 +83,32 @@ public class TriangleCountImpl {
             long endIndex = Math.min(graph.size(), (partitionSize * (partitions + 1)));
             System.out.println("Start index: " + startIndex);
             System.out.println("End index: " + endIndex);
-            PartitionedTriangleCounter counter = new PartitionedTriangleCounter(graph, startIndex, endIndex, triangles);
-            futures.add(service.submit(counter));
+            PartitionedTriangleCounter counter = new PartitionedTriangleCounter(graph, startIndex, endIndex);
+            // futures.add(service.submit(counter));
+            service.submit(counter);
             ++partitions;
         }
-        for (Future<Set<BetterTriangle>> future : futures) {
-            Set<BetterTriangle> partialResult = new HashSet();
-            try {
-                partialResult = future.get();
-            } catch (Exception e) {
-                System.err.println("Task cancelled.");
-                System.exit(0);
-            }
-            triangles.addAll(partialResult);
-        }
+        // for (Future<Set<BetterTriangle>> future : futures) {
+        //     Set<BetterTriangle> partialResult = new HashSet();
+        //     try {
+        //         partialResult = future.get();
+        //     } catch (Exception e) {
+        //         System.err.println("Task cancelled.");
+        //         System.exit(0);
+        //     }
+        //     triangles.addAll(partialResult);
+        // }
         service.shutdown();
+        try {
+
+            service.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            System.err.println("Task cancelled before finishing calculations. Exiting...");
+            System.exit(0);
+        }
+        triangles = PartitionedTriangleCounter.getResults();
         return convertResults(triangles);
     }
-
-    private class PartitionedTriangleCounter implements Callable {
-        private long startIndex, endIndex;
-        private List<Set<Integer>> graph;
-        private Set<BetterTriangle> results;
-
-        public PartitionedTriangleCounter(List<Set<Integer>> graph, long startIndex, long endIndex, Set<BetterTriangle> results) {
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-            this.graph = graph;
-            this.results = results;
-        }
-
-        public Set<BetterTriangle> call() {
-            for (int i = (int)startIndex; i < (int)endIndex; i++) {
-                List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
-                for (int node = 0; node < adjacencyList.size() - 1; node++) {
-                    for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
-                        if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
-                            BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
-                            results.add(t);
-                        }
-                    }
-                }
-            }
-            return results;
-        }
-    }
-
 
     public List<Triangle> naiveEnumerateTriangles(List<Set<Integer>> graph) {
         // this code is single-threaded and ignores numCores
@@ -162,6 +142,7 @@ public class TriangleCountImpl {
 
 
     public List<Set<Integer>> getAdjacencyList(byte[] data) throws IOException {
+        long startTime = System.currentTimeMillis();
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         String strLine = br.readLine();
@@ -188,6 +169,9 @@ public class TriangleCountImpl {
         }
 
         br.close();
+        long endTime = System.currentTimeMillis();
+        long diffTime = endTime - startTime;
+        System.out.println("Parsing took " + diffTime + "ms");
         return adjacencyList;
     }
 }
