@@ -41,22 +41,12 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException {
-        List<Triangle> ret = new ArrayList<Triangle>();
+        List<Triangle> ret;
         List<Set<Integer>> graph = getAdjacencyList(input);
         if (numCores == 1) {
             ret = singleThreadedEnumerateTriangles(graph);
-            // ret = naiveEnumerateTriangles(adjacencyList);
         } else {
             ret = simpleMultiEnumerateTriangles(graph, numCores);
-            // more focused solution that splits vertices evenly among cores
-            // Three phases:
-            // (Phase 1)
-            // Map vertices to their respective adjacent vertices (i.e. triads)
-            // (Apex vertex,adjacent vertices)
-            // (Phase 2)
-            // Check for duplicate vertices on overlapping spaces under each main vertex set selected
-            // (Phase 3)
-            // Trivially calculate triad groupings
         }
 
         return ret;
@@ -149,33 +139,61 @@ public class TriangleCountImpl {
 
     public List<Set<Integer>> getAdjacencyList(byte[] data) throws IOException {
         long startTime = System.currentTimeMillis();
-        InputStream istream = new ByteArrayInputStream(data);
-        BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-        String strLine = br.readLine();
 
+        int cursor = 0;
 
-        String[] parsedLine = strLine.split(" ");
-        int numVertices = Integer.parseInt(parsedLine[0]);
+        StringBuilder buf = new StringBuilder();
+        char in;
+        while ((in = (char)data[cursor++]) != ' ') {
+            buf.append(in);
+        }
+
+        int numVertices = Integer.parseInt(buf.toString());
 
         List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
 
-        Set<Integer> adjSet;
-        while (!(strLine = br.readLine()).equals("")) {
-            String[] parts = strLine.split(": ", 2);
-            int vertex = Integer.parseInt(parts[0]);
-            adjSet = new HashSet<Integer>();
-            int pos = 0, end;
-            if (parts.length > 1) {
-                while ((end = parts[1].indexOf(' ', pos)) >= 0) {
-                    adjSet.add(Integer.valueOf(parts[1].substring(pos, end)));
-                    pos = end + 1;
+        while (in != '\n') {
+            cursor++;
+            in = (char)data[cursor];
+        }
+
+        cursor += 1;
+
+outer:
+        while (cursor < data.length) {
+            buf = new StringBuilder();
+
+            while ((in = (char)data[cursor++])!= ':') {
+                if (cursor == data.length) {
+                    break outer;
                 }
+
+                buf.append(in);
+            }
+
+            cursor += 1;
+
+            int vertex = Integer.parseInt(buf.toString());
+            Set<Integer> adjSet = new HashSet<Integer>();
+
+            buf = new StringBuilder();
+            while ((in = (char)data[cursor++]) != '\n') {
+                if (cursor == data.length) {
+                    break outer;
+                }
+
+                if (in == ' ') {
+                    adjSet.add(Integer.parseInt(buf.toString()));
+                    buf = new StringBuilder();
+                    continue;
+                }
+
+                buf.append(in);
             }
 
             adjacencyList.add(vertex, adjSet);
         }
 
-        br.close();
         long diffTime = System.currentTimeMillis() - startTime;
         System.out.println("Parsing took " + diffTime + "ms");
         return adjacencyList;
