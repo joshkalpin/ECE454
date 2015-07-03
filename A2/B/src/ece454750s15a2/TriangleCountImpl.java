@@ -160,7 +160,7 @@ public class TriangleCountImpl {
         List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
 
         Set<Integer> adjSet;
-        while ((strLine = br.readLine()) != null && !strLine.equals("")) {
+        while (!(strLine = br.readLine()).equals("")) {
             String[] parts = strLine.split(": ", 2);
             int vertex = Integer.parseInt(parts[0]);
             adjSet = new HashSet<Integer>();
