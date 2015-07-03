@@ -9,6 +9,8 @@
 
 package ece454750s15a2;
 
+import com.sun.corba.se.impl.orbutil.graph.Graph;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -93,22 +95,15 @@ public class TriangleCountImpl {
 
     public List<Triangle> simpleMultiEnumerateTriangles(List<Set<Integer>> graph, int ncores) {
         Set<BetterTriangle> triangles;
-        long partitionSize = Math.round((Math.ceil((double)graph.size() / ((double)ncores))));
-        int partitions = 0;
         ExecutorService service = Executors.newFixedThreadPool(ncores);
-
-        while (partitions < ncores) {
-            long startIndex = partitionSize * partitions;
-            long endIndex = Math.min(graph.size(), (partitionSize * (partitions + 1)));
-            PartitionedTriangleCounter counter = new PartitionedTriangleCounter(graph, startIndex, endIndex);
-            service.submit(counter);
-            ++partitions;
+        GraphIndexer indexer = new GraphIndexer(graph.size());
+        for (int i = 0; i < ncores; i++) {
+            service.submit(new PartitionedTriangleCounter(graph, indexer));
         }
 
         service.shutdown();
 
         try {
-
             service.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
         } catch (Exception e) {
             System.err.println("Task cancelled before finishing calculations. Exiting...");
