@@ -143,11 +143,7 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> convertResults(Collection<BetterTriangle> triangles) {
-        List<Triangle> ret = new ArrayList<Triangle>(triangles.size());
-        for (BetterTriangle t : triangles) {
-            ret.add(t.toTriangle());
-        }
-        return ret;
+        return new ArrayList<Triangle>(triangles);
     }
 
 
@@ -157,25 +153,23 @@ public class TriangleCountImpl {
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         String strLine = br.readLine();
 
-        int numVertices = Integer.parseInt(strLine.split(" ")[0]);
+
+        String[] parsedLine = strLine.split(" ");
+        int numVertices = Integer.parseInt(parsedLine[0]);
+
         List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
 
         Set<Integer> adjSet;
         while ((strLine = br.readLine()) != null && !strLine.equals("")) {
-            String[] parts = strLine.split(": ");
+            String[] parts = strLine.split(": ", 2);
             int vertex = Integer.parseInt(parts[0]);
             adjSet = new HashSet<Integer>();
-            // StringTokenizer tokenizer = new StringTokenizer(parts[1], " +");
-            List<Integer> list = new ArrayList<Integer>();
             int pos = 0, end;
             if (parts.length > 1) {
                 while ((end = parts[1].indexOf(' ', pos)) >= 0) {
                     adjSet.add(Integer.valueOf(parts[1].substring(pos, end)));
                     pos = end + 1;
                 }
-                // while (tokenizer.hasMoreTokens()) {
-                //     adjSet.add(Integer.valueOf(tokenizer.nextToken()));
-                // }
             }
 
             adjacencyList.add(vertex, adjSet);

@@ -11,7 +11,6 @@ public class PartitionedTriangleCounter implements Runnable {
     private GraphIndexer indexer;
     private static Set<BetterTriangle> results = Collections.newSetFromMap(new ConcurrentHashMap<BetterTriangle, Boolean>());
 
-
     public PartitionedTriangleCounter(List<Set<Integer>> graph, GraphIndexer indexer) {
         this.graph = graph;
         this.indexer = indexer;

@@ -3,10 +3,11 @@ package ece454750s15a2;
 import java.io.*;
 import java.util.*;
 
-public class BetterTriangle {
+public class BetterTriangle extends Triangle {
     private int x, y, z;
 
     public BetterTriangle(int x, int y, int z) {
+        super(x, y, z);
         int[] list = new int[3];
         list[0] = x;
         list[1] = y;
@@ -72,6 +73,7 @@ public class BetterTriangle {
         return new Triangle(x, y, z);
     }
 
+    @Override
     public String toString() {
         return x + " " + y + " " + z;
     }
