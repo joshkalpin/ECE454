@@ -41,7 +41,7 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException {
-        List<Triangle> ret = new ArrayList<Triangle>();
+        List<Triangle> ret;
         List<Set<Integer>> graph = getAdjacencyList(input);
         if (numCores == 1) {
             ret = singleThreadedEnumerateTriangles(graph);
