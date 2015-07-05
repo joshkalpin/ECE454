@@ -45,9 +45,6 @@ public class LineParser implements Runnable {
                 adjacencyList[vertex] = adjSet;
             }
         } catch (IOException e) {
-            System.out.println(e);
-        } catch (Exception e) {
-            System.out.println(e);
         }
     }
 }

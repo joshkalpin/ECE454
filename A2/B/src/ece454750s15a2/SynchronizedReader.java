@@ -15,8 +15,7 @@ public class SynchronizedReader {
         String ret = in.readLine();
 
         if (ret == null || ret.equals("")) {
-            System.out.println("Done");
-            throw new IOException("Empty input");
+            throw new IOException();
         }
 
         return ret;
