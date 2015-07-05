@@ -15,10 +15,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +44,7 @@ public class TriangleCountImpl {
 
     public List<Triangle> enumerateTriangles() throws IOException {
         List<Triangle> ret;
-        List<Set<Integer>> graph = getAdjacencyList(input);
+        Set<Integer>[] graph = getAdjacencyList(input);
         if (numCores == 1) {
             ret = singleThreadedEnumerateTriangles(graph);
             // ret = naiveEnumerateTriangles(adjacencyList);
@@ -62,11 +64,11 @@ public class TriangleCountImpl {
         return ret;
     }
 
-    public List<Triangle> singleThreadedEnumerateTriangles(List<Set<Integer>> graph) {
+    public List<Triangle> singleThreadedEnumerateTriangles(Set<Integer>[] graph) {
 
         Set<BetterTriangle> triangles = new HashSet<BetterTriangle>();
-        for (int i = 0; i < graph.size(); i++) {
-            List<Integer> adjacencyList = new ArrayList<Integer>(graph.get(i));
+        for (int i = 0; i < graph.length; i++) {
+            List<Integer> adjacencyList = new ArrayList<Integer>(graph[i]);
             // Collections.sort(adjacencyList);
             for (int node = 0; node < adjacencyList.size() - 1; node++) {
                 // skip this entire node if we're larger than the largest value
@@ -91,7 +93,7 @@ public class TriangleCountImpl {
                 }
                 // implementing a gallop search on results to find start point
                 for (int secondNode = node + 1; secondNode < adjacencyList.size(); secondNode++) {
-                    if (graph.get(adjacencyList.get(node)).contains(adjacencyList.get(secondNode))) {
+                    if (graph[adjacencyList.get(node)].contains(adjacencyList.get(secondNode))) {
                         BetterTriangle t = new BetterTriangle(i, adjacencyList.get(node), adjacencyList.get(secondNode));
                         triangles.add(t);
                     }
@@ -101,10 +103,10 @@ public class TriangleCountImpl {
         return convertResults(triangles);
     }
 
-    public List<Triangle> simpleMultiEnumerateTriangles(List<Set<Integer>> graph, int ncores) {
+    public List<Triangle> simpleMultiEnumerateTriangles(Set<Integer>[] graph, int ncores) {
         Set<BetterTriangle> triangles;
         ExecutorService service = Executors.newFixedThreadPool(ncores);
-        GraphIndexer indexer = new GraphIndexer(graph.size());
+        GraphIndexer indexer = new GraphIndexer(graph.length);
         for (int i = 0; i < ncores; i++) {
             service.submit(new PartitionedTriangleCounter(graph, indexer));
         }
@@ -146,38 +148,40 @@ public class TriangleCountImpl {
         return new ArrayList<Triangle>(triangles);
     }
 
-
-    public List<Set<Integer>> getAdjacencyList(byte[] data) throws IOException {
+    private Set<Integer>[] getAdjacencyList(byte[] data) throws IOException {
         long startTime = System.currentTimeMillis();
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-        String strLine = br.readLine();
-
+        SynchronizedReader reader = new SynchronizedReader(br);
+        String strLine = reader.nextLine();
 
         String[] parsedLine = strLine.split(" ");
         int numVertices = Integer.parseInt(parsedLine[0]);
 
-        List<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
+        LineParser.init(numVertices);
 
-        Set<Integer> adjSet;
-        while (!(strLine = br.readLine()).equals("")) {
-            String[] parts = strLine.split(": ", 2);
-            int vertex = Integer.parseInt(parts[0]);
-            adjSet = new HashSet<Integer>();
-            int pos = 0, end;
-            if (parts.length > 1) {
-                while ((end = parts[1].indexOf(' ', pos)) >= 0) {
-                    adjSet.add(Integer.valueOf(parts[1].substring(pos, end)));
-                    pos = end + 1;
-                }
+        if (this.numCores > 1) {
+            ExecutorService service = Executors.newFixedThreadPool(this.numCores);
+
+            for (int i = 0; i < this.numCores; i++) {
+                service.submit(new LineParser(reader));
             }
 
-            adjacencyList.add(vertex, adjSet);
+            service.shutdown();
+
+            try {
+                service.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                System.err.println("Task cancelled before finishing calculations. Exiting...");
+                System.exit(0);
+            }
+        } else {
+            (new LineParser(reader)).run();
         }
 
         br.close();
         long diffTime = System.currentTimeMillis() - startTime;
         System.out.println("Parsing took " + diffTime + "ms");
-        return adjacencyList;
+        return LineParser.getResults();
     }
 }
