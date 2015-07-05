@@ -119,6 +119,7 @@ public class TriangleCountImpl {
     }
 
     private Set<Integer>[] getAdjacencyList(byte[] data) throws IOException {
+        long start = System.currentTimeMillis();
         InputStream istream = new ByteArrayInputStream(data);
         BufferedReader br = new BufferedReader(new InputStreamReader(istream));
         SynchronizedReader reader = new SynchronizedReader(br);
@@ -146,6 +147,8 @@ public class TriangleCountImpl {
         } else {
             (new LineParser(reader)).run();
         }
+
+        System.out.println(System.currentTimeMillis() - start);
 
         br.close();
         return LineParser.getResults();
