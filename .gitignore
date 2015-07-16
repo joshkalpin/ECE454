@@ -25,3 +25,5 @@ output*.txt
 # test input files
 graph*.txt
 
+# ignoring our friendly neighbourhood intellij
+.idea/
