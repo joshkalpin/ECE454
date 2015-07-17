@@ -21,9 +21,11 @@ hs_err_pid*
 # test output files
 output*.txt
 *.sort
+output/
 
 # test input files
 graph*.txt
+input/
 
 # ignoring our friendly neighbourhood intellij
 .idea/

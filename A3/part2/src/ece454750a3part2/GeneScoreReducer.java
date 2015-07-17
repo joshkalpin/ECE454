@@ -31,7 +31,7 @@ public class GeneScoreReducer extends Reducer<Text, IntWritable, Text, DoubleWri
             sum += i.get();
         }
 
-        double score = (double)sum/(double)mapperCounter;;
+        double score = (double)sum /(double)mapperCounter;
         context.write(new Text(key), new DoubleWritable(score));
     }
 }

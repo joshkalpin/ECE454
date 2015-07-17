@@ -3,6 +3,7 @@ package ece454750a3part2;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -26,9 +27,11 @@ public class Part2 {
         // performance gainz - probably won't be used though
         job.setSpeculativeExecution(true);
 
-        job.setJarByClass(Part2.class);
         job.setMapperClass(GeneBySampleCountMapper.class);
         job.setReducerClass(GeneScoreReducer.class);
+
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
@@ -36,6 +39,8 @@ public class Part2 {
         FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
         FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
 
+        job.setJar("Part2.jar");
+        job.setJarByClass(Part2.class);
         job.waitForCompletion(true);
     }
 }
