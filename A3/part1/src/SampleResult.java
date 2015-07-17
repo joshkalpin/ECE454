@@ -1,5 +1,3 @@
-package ece454750a3part1;
-
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -11,13 +9,11 @@ import java.util.StringTokenizer;
 public class SampleResult {
 
     public static class GeneMapper extends Mapper<Object, Text, Text, Text> {
-
         private Text sampleName = new Text();
         private Text geneNames = new Text();
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-
             StringTokenizer st = new StringTokenizer(value.toString(), ",");
             double maxValue = 0.0;
             Queue<Integer> maxGenes = new LinkedList<Integer>();
