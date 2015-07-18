@@ -1,13 +1,8 @@
-package ece454750a3part2;
-
-
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public class SummingReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
     DoubleWritable prod = new DoubleWritable();
@@ -20,8 +15,8 @@ public class SummingReducer extends Reducer<Text, DoubleWritable, Text, DoubleWr
             sum += value.get();
         }
 
+        sum = Math.floor(sum * 100) / 100;
         prod.set(sum);
-
         context.write(key, prod);
     }
 }
