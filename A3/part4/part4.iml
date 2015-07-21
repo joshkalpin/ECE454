@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="bash" name="BashSupport">
+      <configuration>
+        <operationMode type="IgnoreAll" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar:///usr/local/Cellar/pig/0.14.0/libexec/pig-0.14.0-core-h2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/common" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/hdfs" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/httpfs" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/mapreduce" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/yarn" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/doc/hadoop/api" />
+          <root url="file://$USER_HOME$/Code/hadoop-2.6.0/share/doc/hadoop/hadoop-hdfs-httpfs/apidocs" />
+        </JAVADOC>
+        <SOURCES />
+        <jarDirectory url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/common" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/hdfs" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/mapreduce" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/Code/hadoop-2.6.0/share/hadoop/yarn" recursive="false" />
+      </library>
+    </orderEntry>
+  </component>
+</module>
