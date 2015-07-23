@@ -1,0 +1,12 @@
+register CancerGenes.jar;
+sample_data = load '$input' using PigStorage(',');
+samples = foreach sample_data generate $0 as sample_id:chararray, ($1 ..) as genes:tuple();
+B = group samples ALL;
+total_samples = foreach B generate (double)COUNT(samples) as total:double;
+cancer_gene_map = foreach samples generate FLATTEN(CancerGenes(genes));
+cancer_gene_groups = group cancer_gene_map by gene_id;
+cancer_gene_sum_groups = foreach cancer_gene_groups generate FLATTEN($1.gene_id) as gene_id:chararray, SUM($1.is_cancerous) as gene_presence_sum:double;
+unscored_genes = distinct cancer_gene_sum_groups;
+unscored_gene_total_association = foreach unscored_genes generate gene_id, gene_presence_sum, (double)total_samples.total as total:double;
+out = foreach unscored_gene_total_association generate gene_id, (double)gene_presence_sum/total as score:double;
+store out into '$output' using PigStorage(',');

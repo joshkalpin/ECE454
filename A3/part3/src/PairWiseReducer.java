@@ -70,7 +70,7 @@ public class PairWiseReducer extends Reducer<IntWritable, Text, Text, DoubleWrit
 
         @Override
         public String toString() {
-            return "sample_" + sample;
+            return "" + sample;
         }
     }
 }

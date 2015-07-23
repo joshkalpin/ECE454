@@ -17,6 +17,7 @@ public class SummingReducer extends Reducer<Text, DoubleWritable, Text, DoubleWr
 
         sum = Math.floor(sum * 100) / 100;
         prod.set(sum);
-        context.write(key, prod);
+        String[] keySamples = key.toString().split(",");
+        context.write(new Text("sample_" + keySamples[0] + ",sample_" + keySamples[1]), prod);
     }
 }

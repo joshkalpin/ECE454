@@ -13,7 +13,6 @@ pig -param input=/user/jzanutto/input/1k_Samples -param output=/user/jzanutto/ou
 echo "Copying output from HDFS."
 hdfs dfs -copyToLocal /user/jzanutto/output/
 echo "Sorting output."
-sort output/part-m-00000
+sort output/part-*-00000 > output/part-*-00000.sort
 echo "=================== OUTPUT ==================="
-
-cat output/part-m-00000
+cat output/part-*-00000
