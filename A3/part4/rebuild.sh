@@ -1,8 +1,8 @@
 #!/bin/bash
 echo "Don't forget to update your classpath with the pig jar or this won't work"
 echo "Building UDF jar"
-javac $2.java
-jar -cf $2.jar $2*.class
+javac $1.java
+jar -cf $1.jar $1*.class
 echo "Cleaning up old outputs and log files"
 rm -rf output/
 mkdir output/

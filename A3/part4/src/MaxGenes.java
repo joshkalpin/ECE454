@@ -16,12 +16,13 @@ public class MaxGenes extends EvalFunc<String> {
 
         double max = 0.0;
         for (int i = 0; i < genePool.length; i++) {
-            Double geneVal = Double.parseDouble(genePool[i]);
+            double geneVal = Double.parseDouble(genePool[i]);
             if (geneVal > max) {
                 sb = new StringBuilder();
                 max = geneVal;
             }
-            if (geneVal.equals(max)) {
+
+            if (geneVal == max) {
                 sb.append("gene_").append(i + 1).append(",");
             }
         }
