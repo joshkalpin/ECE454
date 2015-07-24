@@ -35,7 +35,7 @@ public class DotProduct extends EvalFunc<Tuple> {
             tupleSchema.add(new Schema.FieldSchema("first_sample", DataType.CHARARRAY));
             tupleSchema.add(new Schema.FieldSchema("second_sample", DataType.CHARARRAY));
             tupleSchema.add(new Schema.FieldSchema("dot_product", DataType.DOUBLE));
-            return tupleSchema;
+            return new Schema(new Schema.FieldSchema("sample_similarity", tupleSchema, DataType.TUPLE));
         } catch (Exception e) {
             return null;
         }

@@ -9,7 +9,7 @@ mkdir output/
 hdfs dfs -rm -r -skipTrash /user/$(whoami)/output/
 rm *.log
 echo "Starting pig script"
-pig -param input=/user/$(whoami)/input/1k_Samples -param output=/user/$(whoami)/output/ $1
+pig -param input=/user/$(whoami)/simple_input -param output=/user/$(whoami)/output/ $2.pig
 echo "Copying output from HDFS."
 hdfs dfs -copyToLocal /user/$(whoami)/output/
 echo "Sorting output."
