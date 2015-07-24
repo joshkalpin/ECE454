@@ -1,32 +1,47 @@
 import org.apache.pig.EvalFunc;
+import org.apache.pig.LoadCaster;
+import org.apache.pig.builtin.Utf8StorageConverter;
+import org.apache.pig.data.DataByteArray;
 import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 import java.io.IOException;
+import java.lang.String;
+import java.lang.StringBuilder;
+import java.math.BigDecimal;
 
-public class DotProduct extends EvalFunc<Tuple> {
+public class DotProduct extends EvalFunc<String> {
+
+    public static double toDouble(byte[] bytes) throws IOException{
+        LoadCaster lc = new Utf8StorageConverter();
+        return lc.bytesToDouble(bytes);
+    }
+
+    public static int toInt(byte[] bytes) throws IOException {
+        LoadCaster lc = new Utf8StorageConverter();
+        return lc.bytesToInteger(bytes);
+    }
 
     @Override
-    public Tuple exec(Tuple input) throws IOException {
-        int firstSample = Integer.parseInt(input.get(0).toString());
-        int secondSample = Integer.parseInt(input.get(1).toString());
-        String[] firstSampleGenes = input.get(2).toString().split(",");
-        String[] secondSampleGenes = input.get(3).toString().split(",");
+    public String exec(Tuple input) throws IOException {
+        Tuple inner = (Tuple)input.get(0);
+
+        Tuple firstSampleGenes = (Tuple)inner.get(2);
+        Tuple secondSampleGenes = (Tuple)inner.get(3);
 
         Tuple t = TupleFactory.getInstance().newTuple(3);
-        t.set(0, "sample_" + firstSample);
-        t.set(1, "sample_" + secondSample);
+        StringBuilder sb = new StringBuilder("sample_");
+        sb.append(inner.get(0)).append(",").append("sample_").append(inner.get(1));
 
         double sum = 0.0;
-        for (int i = 0; i < firstSampleGenes.length; i++) {
-            sum += Double.parseDouble(firstSampleGenes[i]) * Double.parseDouble(secondSampleGenes[i]);
+        for (int i = 0; i < firstSampleGenes.size(); i++) {
+            sum += Double.parseDouble(firstSampleGenes.get(i).toString()) *
+                    Double.parseDouble(secondSampleGenes.get(i).toString());
         }
 
-        t.set(2, sum);
-
-        return t;
+        return sb.append(",").append(sum).toString();
     }
 
     public Schema outputSchema(Schema input) {
