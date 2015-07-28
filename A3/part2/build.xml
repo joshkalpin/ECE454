@@ -1,4 +1,4 @@
-<project name="SubjectAverage" default="dist" basedir=".">
+<project name="Part2" default="dist" basedir=".">
   <description>
     simple example build file
   </description>
@@ -43,8 +43,7 @@
     <jar jarfile="Part2.jar" basedir="${build}"/>
   </target>
 
-  <target name="clean"
-        description="clean up">
+  <target name="clean" description="clean up">
     <!-- Delete the ${build} and ${dist} directory trees -->
     <delete dir="${build}"/>
     <delete dir="${dist}"/>

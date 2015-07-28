@@ -1,4 +1,4 @@
-<project name="SubjectAverage" default="dist" basedir=".">
+<project name="Part3" default="dist" basedir=".">
   <description>
     simple example build file
   </description>
@@ -48,5 +48,10 @@
     <!-- Delete the ${build} and ${dist} directory trees -->
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
+        <exec executable="hdfs dfs">
+      <arg value="-rm"/>
+      <arg value="-r"/>
+      <arg value="/user/$(whoami)/temp_output/"/>
+    </exec>
   </target>
 </project>

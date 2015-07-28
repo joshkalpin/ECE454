@@ -1,4 +1,4 @@
-<project name="SubjectAverage" default="dist" basedir=".">
+<project name="Part1" default="dist" basedir=".">
   <description>
     simple example build file
   </description>
@@ -40,7 +40,7 @@
     <mkdir dir="${dist}/lib"/>
 
     <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/Part1.jar" basedir="${build}"/>
+    <jar jarfile="Part1.jar" basedir="${build}"/>
   </target>
 
   <target name="clean"

@@ -1,5 +1,3 @@
-package ece454750a3part2;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
