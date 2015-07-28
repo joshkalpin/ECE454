@@ -1,4 +1,4 @@
-register DotProduct.jar;
+register UDF.jar;
 sample_data = load '$input' using PigStorage(',');
 samples = foreach sample_data generate STRSPLIT((chararray)$0, '_').$1 as sample_id:int, ($1 ..) as genes:tuple();
 samples_copy = foreach sample_data generate STRSPLIT((chararray)$0, '_').$1 as sample_id:int, ($1 ..) as genes:tuple();

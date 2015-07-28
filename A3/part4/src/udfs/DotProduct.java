@@ -10,7 +10,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 import java.io.IOException;
 import java.lang.String;
 import java.lang.StringBuilder;
-import java.math.BigDecimal;
 
 public class DotProduct extends EvalFunc<String> {
     @Override
@@ -24,7 +23,7 @@ public class DotProduct extends EvalFunc<String> {
         StringBuilder sb = new StringBuilder("sample_");
         sb.append(inner.get(0)).append(",").append("sample_").append(inner.get(1));
 
-        BigDecimal sum = new BigDecimal(0.0);
+        Double sum = 0.0;
         for (int i = 0; i < firstSampleGenes.size(); i++) {
             sum = Double.parseDouble(firstSampleGenes.get(i).toString()) *
                     Double.parseDouble(secondSampleGenes.get(i).toString());

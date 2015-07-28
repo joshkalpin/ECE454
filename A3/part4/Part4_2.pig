@@ -1,4 +1,4 @@
-register CancerGenes.jar;
+register UDF.jar;
 sample_data = load '$input' using PigStorage(',');
 samples = foreach sample_data generate $0 as sample_id:chararray, ($1 ..) as genes:tuple();
 B = group samples ALL;
