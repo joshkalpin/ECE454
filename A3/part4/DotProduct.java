@@ -13,17 +13,6 @@ import java.lang.StringBuilder;
 import java.math.BigDecimal;
 
 public class DotProduct extends EvalFunc<String> {
-
-    public static double toDouble(byte[] bytes) throws IOException{
-        LoadCaster lc = new Utf8StorageConverter();
-        return lc.bytesToDouble(bytes);
-    }
-
-    public static int toInt(byte[] bytes) throws IOException {
-        LoadCaster lc = new Utf8StorageConverter();
-        return lc.bytesToInteger(bytes);
-    }
-
     @Override
     public String exec(Tuple input) throws IOException {
         Tuple inner = (Tuple)input.get(0);
@@ -35,10 +24,14 @@ public class DotProduct extends EvalFunc<String> {
         StringBuilder sb = new StringBuilder("sample_");
         sb.append(inner.get(0)).append(",").append("sample_").append(inner.get(1));
 
-        double sum = 0.0;
+        BigDecimal sum = new BigDecimal(0.0);
         for (int i = 0; i < firstSampleGenes.size(); i++) {
-            sum += Double.parseDouble(firstSampleGenes.get(i).toString()) *
+            sum = Double.parseDouble(firstSampleGenes.get(i).toString()) *
                     Double.parseDouble(secondSampleGenes.get(i).toString());
+        }
+
+        if (sum == 0.0) {
+            return null;
         }
 
         return sb.append(",").append(sum).toString();

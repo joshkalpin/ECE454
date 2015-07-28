@@ -28,7 +28,7 @@ public class Part3 extends Configured implements Tool {
         }
 
         Job job1 = Job.getInstance(conf, "Part3-1");
-        // performance gainz - probably won't be used though
+        // performance gains - probably won't be used though
         job1.setSpeculativeExecution(true);
 
         job1.setMapperClass(PairWiseMapper.class);
